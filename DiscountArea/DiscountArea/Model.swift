@@ -1,7 +1,19 @@
 import Foundation
 
 //MARK: - Page Data
+//struct ResponsePageData: Codable {
+//    let code: String
+//    let errmsg: String?
+//    let data: PageData
+//}
+
 struct ResponsePageData: Codable {
+    let code: String
+    let errmsg: String?
+    let data: ResponsePageData2
+}
+
+struct ResponsePageData2: Codable {
     let code: String
     let errmsg: String?
     let data: PageData

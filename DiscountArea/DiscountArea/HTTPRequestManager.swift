@@ -43,20 +43,32 @@ class HTTPRequestManager {
                 decoder.keyDecodingStrategy = .convertFromSnakeCase
 
                 do {
+
+                    
                     let pageData = try decoder.decode(ResponsePageData.self, from: data)
+
+                    // 可以取到 blog 但是資料格式要調整
+//                    let categories = pageData.data.data.categories[0].config[0]
+//                    print("CCCC\(categories)")
 
                     // 取台灣資料，有 tab
                     if tag == 0 {
-                        self.productList = pageData.data.categories[0].config[sort].detail.tabs?[1].products.map{ $0.productUrlId } ?? []
-                    } else {
+                        self.productList = pageData.data.data.categories[0].config[2].detail.tabs?[1].products.map{ $0.productUrlId } ?? []
+                        print("CCCC\(self.productList)")
+
+                    } else if tag == 3 || tag == 8 || tag == 12 {
+                        // 這三個地區的格式沒有 index 2 或是 index 2 格式對不起來
+                        self.productList = pageData.data.data.categories[tag].config[1].detail.products?.map{ $0.productUrlId } ?? []
+                    }
+                    else {
                         // 取其他國家資料，沒有 tab
-                        self.productList = pageData.data.categories[tag].config[sort].detail.products?.map{ $0.productUrlId } ?? []
+                        self.productList = pageData.data.data.categories[tag].config[sort].detail.products?.map{ $0.productUrlId } ?? []
                     }
 //                    print(self.productList)
 
                     DispatchQueue.main.async {
                         self.delegate?.manager(self, didGet: pageData)
-//                        print("========\n\(pageData)\n=======")
+                        print("========\n\(pageData)\n=======")
                         self.delegate?.manager(self, didGetProductList: self.productList)
                     }
                 } catch {
@@ -122,7 +134,6 @@ class HTTPRequestManager {
                 }
             }
         }
-
         task.resume()
     }
 }

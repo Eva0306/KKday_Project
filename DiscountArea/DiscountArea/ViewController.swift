@@ -6,22 +6,23 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
 
     var httpRequestManager = HTTPRequestManager()
     var products: [Product] = []
-    var Pproducts: [DiscountArea.ProductData] = []
+    var productData: [DiscountArea.ProductData] = []
     var productList: [String] = []
     var semaphore = DispatchSemaphore(value: 0)
 
     var collectionView: UICollectionView!
     var timer: Timer?
+    var selectedTag: Int = 0
     let cellIdentifier = "CustomCell"
     let images: [UIColor] = [.systemPink, .systemOrange, .yellow, .systemGreen, .darkGray]
 
     override func viewDidLoad() {
+        print("====DidLoad====")
         super.viewDidLoad()
-
         httpRequestManager.delegate = self
 
         DispatchQueue.global().async {
-            self.httpRequestManager.fetchPageData(tag: 10, sort: 2)
+            self.httpRequestManager.fetchPageData(tag: 0, sort: 2)
             self.semaphore.wait()
             DispatchQueue.main.async {
                 self.httpRequestManager.fetchProductData(productList: self.productList)
@@ -30,6 +31,35 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
             }
         }
     }
+
+//    override func viewDidAppear(_ animated: Bool) {
+//        print("====DidAppear====")
+//        setTag()
+//    }
+//
+//    override func viewWillAppear(_ animated: Bool) {
+//        print("====WillAppear====")
+//        DispatchQueue.global().async {
+//            self.httpRequestManager.fetchPageData(tag: self.selectedTag, sort: 2)
+//            self.semaphore.wait()
+//            DispatchQueue.main.async {
+//                self.httpRequestManager.fetchProductData(productList: self.productList)
+//                self.setupCollectionView()
+//                self.startAutoScrollTimer()
+//            }
+//        }
+//    }
+//
+//    func setTag(){
+//        let alert = UIAlertController(title: "Select", message: nil, preferredStyle: .actionSheet)
+//            (0...13).forEach { number in
+//            alert.addAction(UIAlertAction(title: "\(number)", style: .default) { _ in
+//                self.selectedTag = number
+//                print("User selected: \(number)")
+//            })
+//        }
+//        present(alert, animated: true)
+//    }
 
     func setupCollectionView() {
         let layout = UICollectionViewFlowLayout()
@@ -77,54 +107,35 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! promoProductCell
 
-        if Pproducts.isEmpty {
-            // 显示占位内容
-            cell.imageView.image = UIImage(named: "placeholder") // 默认图像
-            cell.configure(labelTexts: ["加载中...", "加载中...", "加载中..."])
-            cell.price.attributedText = NSAttributedString(
-                string: "加载中...",
-                attributes: [
-                    .strikethroughStyle: NSUnderlineStyle.single.rawValue
-                ]
-            )
+        if productData.isEmpty {
+            cell.imageView.image = UIImage(named: "placeHolder")
         } else {
-            let product = Pproducts[indexPath.item]
+            let product = productData[indexPath.item]
             cell.imageView.loadImage(from: product.imgUrl)
-            cell.configure(labelTexts: [
-                product.name,
-                "星等 \(product.ratingStar)",
-                "\(product.currency) \(product.price)"
-            ])
-            cell.price.attributedText = NSAttributedString(
-                string: "\(product.originPrice)",
-                attributes: [
-                    .strikethroughStyle: NSUnderlineStyle.single.rawValue
-                ]
-            )
-        }
+            cell.configure(labelTexts: [product.name, " 星等 \(product.ratingStar) (\(product.ratingCount))"])
+            cell.price.text = "\(product.currency) \(product.price)"
+            cell.price.font = UIFont.boldSystemFont(ofSize: 18)
 
-//        cell.imageView.loadImage(from: "\(Pproducts[1].imgUrl)")
-//
-//        cell.configure(labelTexts: ["\(Pproducts[1].name)", "星等 \(Pproducts[1].ratingStar)", "價錢\(Pproducts[1].currency)\(Pproducts[1].price)"])
-//
-//        cell.price.attributedText = NSAttributedString(
-//            string: "價錢",
-//            attributes: [
-//                .strikethroughStyle: NSUnderlineStyle.single.rawValue
-//            ]
-//        )
-//
-//        cell.imageView.loadImage(from: "https://image.kkday.com/v2/image/get/w_600%2Cc_fit/s1.kkday.com/product_107922/20230221070205_NDApO/jpg")
-//
-//        cell.configure(labelTexts: ["品項名稱", "星等", "價錢"])
-//
-//        cell.price.attributedText = NSAttributedString(
-//            string: "價錢",
-//            attributes: [
-//                .strikethroughStyle: NSUnderlineStyle.single.rawValue
-//            ]
-//        )
+            if product.price != product.originPrice{
+                cell.originPrice.textColor = .gray
+                cell.originPrice.attributedText = NSAttributedString(
+                    string: "\(product.currency) \(product.originPrice)",
+                    attributes: [
+                        .strikethroughStyle: NSUnderlineStyle.single.rawValue
+                    ]
+                )
+            }
+        }
         return cell
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let product = productData[indexPath.item]
+        if let url = URL(string: "https://www.kkday.com/zh-tw/product/\(product.id)") {
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:])
+            }
+        }
     }
 
     // MARK: - UICollectionViewDelegateFlowLayout
@@ -138,6 +149,8 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         timer?.invalidate()
     }
 
+    // MARK: - HTTPRequestManagerDelegate
+
     func manager(_ manager: HTTPRequestManager, didGet data: Any) {
         return
     }
@@ -150,7 +163,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     }
 
     func didReceiveProductData(_ manager: HTTPRequestManager, products: [DiscountArea.ProductData]) {
-        self.Pproducts = products
+        self.productData = products
         collectionView.reloadData()
     }
 

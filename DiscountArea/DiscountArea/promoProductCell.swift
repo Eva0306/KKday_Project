@@ -13,6 +13,7 @@ class promoProductCell: UICollectionViewCell {
     let starImage = UIImageView()
     let name = UILabel()
     let star = UILabel()
+    let originPrice = UILabel()
     let price = UILabel()
 
     override init(frame: CGRect) {
@@ -31,12 +32,14 @@ class promoProductCell: UICollectionViewCell {
         starImage.image = UIImage(named: "star")
         starImage.translatesAutoresizingMaskIntoConstraints = false
         star.translatesAutoresizingMaskIntoConstraints = false
+        originPrice.translatesAutoresizingMaskIntoConstraints = false
         price.translatesAutoresizingMaskIntoConstraints = false
 
         contentView.addSubview(imageView)
         contentView.addSubview(name)
         contentView.addSubview(starImage)
         contentView.addSubview(star)
+        contentView.addSubview(originPrice)
         contentView.addSubview(price)
 
         imageView.contentMode = .scaleAspectFill
@@ -44,6 +47,7 @@ class promoProductCell: UICollectionViewCell {
 
         name.textAlignment = .left
         star.textAlignment = .left
+        originPrice.textAlignment = .left
         price.textAlignment = .left
 
         NSLayoutConstraint.activate([
@@ -65,17 +69,31 @@ class promoProductCell: UICollectionViewCell {
             star.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 40),
             star.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
 
-            price.topAnchor.constraint(equalTo: star.bottomAnchor, constant: 8),
+            originPrice.topAnchor.constraint(equalTo: star.bottomAnchor, constant: 8),
+            originPrice.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
+            originPrice.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
+
+            price.topAnchor.constraint(equalTo: originPrice.bottomAnchor, constant: 8),
             price.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
             price.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24)
         ])
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        imageView.image = UIImage(named: "placeHolder")
+        price.text = nil
+        originPrice.text = nil
+        originPrice.attributedText = nil
+    }
+
     func configure(labelTexts: [String]) {
 //        imageView.backgroundColor = imageName
-        
         name.text = labelTexts[0]
         star.text = labelTexts[1]
-        price.text = labelTexts[2]
+
+        name.font = .boldSystemFont(ofSize: 20)
+        name.numberOfLines = 0
+        originPrice.textColor = .gray
     }
 }
