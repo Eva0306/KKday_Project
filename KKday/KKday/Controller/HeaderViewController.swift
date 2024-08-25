@@ -123,10 +123,14 @@ class HeaderViewController: UIViewController, CountrySelectorViewDelegate, HTTPR
     
     func manager(_ manager: HTTPRequestManager, didGet data: Any) {
         if let responsePageData = data as? ResponsePageData {
-            self.countries = responsePageData.data.categories
+            let responsePageData2 = responsePageData.data
+            let pageData = responsePageData2.data
+            self.countries = pageData.categories
+            
             print("Data received: \(responsePageData)")
         }
     }
+
     
     func manager(_ manager: HTTPRequestManager, didFailWith error: Error) {
         print("Failed to fetch data: \(error)")

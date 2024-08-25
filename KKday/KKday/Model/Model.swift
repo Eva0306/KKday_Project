@@ -4,11 +4,16 @@
 //
 //  Created by Vickyhereiam on 2024/8/23.
 //
-
 import Foundation
 
 //MARK: - Page Data
 struct ResponsePageData: Codable {
+    let code: String
+    let errmsg: String?
+    let data: ResponsePageData2
+}
+
+struct ResponsePageData2: Codable {
     let code: String
     let errmsg: String?
     let data: PageData
@@ -27,6 +32,7 @@ struct PageData: Codable {
     let layout: String?
     let ctaText: String?
     let subtitle: String?
+    
 }
 
 struct Category: Codable {
@@ -83,5 +89,4 @@ struct ProductData: Codable {
     let ratingCount: Int
     let ratingStar: Double
 }
-
 
