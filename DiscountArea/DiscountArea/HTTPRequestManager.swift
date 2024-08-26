@@ -47,14 +47,13 @@ class HTTPRequestManager {
                     
                     let pageData = try decoder.decode(ResponsePageData.self, from: data)
 
-                    // 可以取到 blog 但是資料格式要調整
-//                    let categories = pageData.data.data.categories[0].config[0]
-//                    print("CCCC\(categories)")
+                    // 可以取到 blog 
+                    let categories = pageData.data.data.categories[0].config[0].detail.guides
+                    print("CCCC\(categories)")
 
                     // 取台灣資料，有 tab
                     if tag == 0 {
                         self.productList = pageData.data.data.categories[0].config[2].detail.tabs?[1].products.map{ $0.productUrlId } ?? []
-                        print("CCCC\(self.productList)")
 
                     } else if tag == 3 || tag == 8 || tag == 12 {
                         // 這三個地區的格式沒有 index 2 或是 index 2 格式對不起來

@@ -57,6 +57,7 @@ struct Detail: Codable {
     let subtitle: String?
     let startTime: String?
     let products: [Product]?
+    let guides: [Guide]?
 }
 
 struct Tab: Codable {
@@ -68,6 +69,13 @@ struct Product: Codable {
     let name: String?
     let label: String?
     let productUrlId: String
+}
+
+struct Guide: Codable {
+    let title: String
+    let imageUrl: String
+    let link: String
+    let isShowVideoPlayIcon: Bool
 }
 
 //MARK: - Product Data

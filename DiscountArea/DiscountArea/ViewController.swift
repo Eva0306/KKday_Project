@@ -10,6 +10,8 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     var productList: [String] = []
     var semaphore = DispatchSemaphore(value: 0)
 
+    var mainProductLabel = UILabel()
+    var bestOfferLabel = UILabel()
     var collectionView: UICollectionView!
     var timer: Timer?
     var selectedTag: Int = 0
@@ -20,7 +22,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         print("====DidLoad====")
         super.viewDidLoad()
         httpRequestManager.delegate = self
-
+        setupTitles()
         DispatchQueue.global().async {
             self.httpRequestManager.fetchPageData(tag: 0, sort: 2)
             self.semaphore.wait()
@@ -32,34 +34,31 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         }
     }
 
-//    override func viewDidAppear(_ animated: Bool) {
-//        print("====DidAppear====")
-//        setTag()
-//    }
-//
-//    override func viewWillAppear(_ animated: Bool) {
-//        print("====WillAppear====")
-//        DispatchQueue.global().async {
-//            self.httpRequestManager.fetchPageData(tag: self.selectedTag, sort: 2)
-//            self.semaphore.wait()
-//            DispatchQueue.main.async {
-//                self.httpRequestManager.fetchProductData(productList: self.productList)
-//                self.setupCollectionView()
-//                self.startAutoScrollTimer()
-//            }
-//        }
-//    }
-//
-//    func setTag(){
-//        let alert = UIAlertController(title: "Select", message: nil, preferredStyle: .actionSheet)
-//            (0...13).forEach { number in
-//            alert.addAction(UIAlertAction(title: "\(number)", style: .default) { _ in
-//                self.selectedTag = number
-//                print("User selected: \(number)")
-//            })
-//        }
-//        present(alert, animated: true)
-//    }
+    func setupTitles() {
+        mainProductLabel.text = "主打商品"
+        mainProductLabel.font = UIFont.boldSystemFont(ofSize: 24)
+        mainProductLabel.textAlignment = .center
+        mainProductLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(mainProductLabel)
+
+        bestOfferLabel.text = "最優惠的商品看這邊"
+        bestOfferLabel.font = UIFont.systemFont(ofSize: 18)
+        bestOfferLabel.textColor = .gray
+        bestOfferLabel.textAlignment = .center
+        bestOfferLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(bestOfferLabel)
+
+        // Add constraints for the labels
+        NSLayoutConstraint.activate([
+            mainProductLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            mainProductLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            mainProductLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+
+            bestOfferLabel.topAnchor.constraint(equalTo: mainProductLabel.bottomAnchor, constant: 10),
+            bestOfferLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bestOfferLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+    }
 
     func setupCollectionView() {
         let layout = UICollectionViewFlowLayout()
@@ -75,6 +74,14 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
 
         collectionView.register(promoProductCell.self, forCellWithReuseIdentifier: cellIdentifier)
         view.addSubview(collectionView)
+
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 80),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
     }
 
     func startAutoScrollTimer() {
