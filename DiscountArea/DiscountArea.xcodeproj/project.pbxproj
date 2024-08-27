@@ -16,7 +16,8 @@
 		E9C384D02C785B6000BDF717 /* promoProductCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C384CF2C785B6000BDF717 /* promoProductCell.swift */; };
 		E9C384D22C787BDD00BDF717 /* HTTPRequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C384D12C787BDD00BDF717 /* HTTPRequestManager.swift */; };
 		E9C384D42C787BF600BDF717 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C384D32C787BF600BDF717 /* Model.swift */; };
-		E9C384D62C78C94600BDF717 /* ExtensionUIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C384D52C78C94600BDF717 /* ExtensionUIImage.swift */; };
+		E9C384D62C78C94600BDF717 /* ExtensionUIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C384D52C78C94600BDF717 /* ExtensionUIImageView.swift */; };
+		E9C384D82C7C30F800BDF717 /* ExtensionUIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C384D72C7C30F800BDF717 /* ExtensionUIColor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,7 +32,8 @@
 		E9C384CF2C785B6000BDF717 /* promoProductCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = promoProductCell.swift; sourceTree = "<group>"; };
 		E9C384D12C787BDD00BDF717 /* HTTPRequestManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRequestManager.swift; sourceTree = "<group>"; };
 		E9C384D32C787BF600BDF717 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
-		E9C384D52C78C94600BDF717 /* ExtensionUIImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionUIImage.swift; sourceTree = "<group>"; };
+		E9C384D52C78C94600BDF717 /* ExtensionUIImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionUIImageView.swift; sourceTree = "<group>"; };
+		E9C384D72C7C30F800BDF717 /* ExtensionUIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionUIColor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,7 +76,8 @@
 				B3EE256E2C77447F006B24A4 /* Info.plist */,
 				E9C384D12C787BDD00BDF717 /* HTTPRequestManager.swift */,
 				E9C384D32C787BF600BDF717 /* Model.swift */,
-				E9C384D52C78C94600BDF717 /* ExtensionUIImage.swift */,
+				E9C384D52C78C94600BDF717 /* ExtensionUIImageView.swift */,
+				E9C384D72C7C30F800BDF717 /* ExtensionUIColor.swift */,
 			);
 			path = DiscountArea;
 			sourceTree = "<group>";
@@ -151,8 +154,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				E9C384D22C787BDD00BDF717 /* HTTPRequestManager.swift in Sources */,
-				E9C384D62C78C94600BDF717 /* ExtensionUIImage.swift in Sources */,
+				E9C384D62C78C94600BDF717 /* ExtensionUIImageView.swift in Sources */,
 				B3EE25652C77447E006B24A4 /* ViewController.swift in Sources */,
+				E9C384D82C7C30F800BDF717 /* ExtensionUIColor.swift in Sources */,
 				E9C384D02C785B6000BDF717 /* promoProductCell.swift in Sources */,
 				E9C384D42C787BF600BDF717 /* Model.swift in Sources */,
 				B3EE25612C77447E006B24A4 /* AppDelegate.swift in Sources */,

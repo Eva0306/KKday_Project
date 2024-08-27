@@ -8,8 +8,7 @@
 import Foundation
 
 protocol HTTPRequestManagerDelegate {
-    func manager(_ manager: HTTPRequestManager, didGet data: Any)
-    func manager(_ manager: HTTPRequestManager, didGetProductList productList: [String])
+    func manager(_ manager: HTTPRequestManager, didGet pageData: ResponsePageData)
     func didReceiveProductData(_ manager: HTTPRequestManager, products: [DiscountArea.ProductData])
     func manager(_ manager: HTTPRequestManager, didFailWith error: Error)
 }
@@ -19,8 +18,7 @@ class HTTPRequestManager {
     var delegate: HTTPRequestManagerDelegate?
     var productList = [String]()
 
-    // tag：國家（十三個之中的一個）；sort：類別
-    func fetchPageData(tag: Int, sort: Int) {
+    func fetchPageData() {
         guard let url = URL(string: "https://aw-api.creziv.com/pages") else { return }
 
         var request = URLRequest(url: url)
@@ -44,31 +42,11 @@ class HTTPRequestManager {
 
                 do {
 
-                    
                     let pageData = try decoder.decode(ResponsePageData.self, from: data)
-
-                    // 可以取到 blog 
-                    let categories = pageData.data.data.categories[0].config[0].detail.guides
-                    print("CCCC\(categories)")
-
-                    // 取台灣資料，有 tab
-                    if tag == 0 {
-                        self.productList = pageData.data.data.categories[0].config[2].detail.tabs?[1].products.map{ $0.productUrlId } ?? []
-
-                    } else if tag == 3 || tag == 8 || tag == 12 {
-                        // 這三個地區的格式沒有 index 2 或是 index 2 格式對不起來
-                        self.productList = pageData.data.data.categories[tag].config[1].detail.products?.map{ $0.productUrlId } ?? []
-                    }
-                    else {
-                        // 取其他國家資料，沒有 tab
-                        self.productList = pageData.data.data.categories[tag].config[sort].detail.products?.map{ $0.productUrlId } ?? []
-                    }
-//                    print(self.productList)
 
                     DispatchQueue.main.async {
                         self.delegate?.manager(self, didGet: pageData)
-                        print("========\n\(pageData)\n=======")
-                        self.delegate?.manager(self, didGetProductList: self.productList)
+//                        print("========\n\(pageData)\n=======")
                     }
                 } catch {
                     DispatchQueue.main.async {
@@ -136,3 +114,23 @@ class HTTPRequestManager {
         task.resume()
     }
 }
+
+//
+//
+//// 可以取到 blog
+//let categories = pageData.data.data.categories[0].config[0].detail.guides
+//print("CCCC\(categories)")
+//
+//// 取台灣資料，有 tab
+//if tag == 0 {
+//    self.productList = pageData.data.data.categories[0].config[2].detail.tabs?[1].products.map{ $0.productUrlId } ?? []
+//
+//} else if tag == 3 || tag == 8 || tag == 12 {
+//    // 這三個地區的格式沒有 index 2 或是 index 2 格式對不起來
+//    self.productList = pageData.data.data.categories[tag].config[1].detail.products?.map{ $0.productUrlId } ?? []
+//}
+//else {
+//    // 取其他國家資料，沒有 tab
+//    self.productList = pageData.data.data.categories[tag].config[sort].detail.products?.map{ $0.productUrlId } ?? []
+//}
+//                    print(self.productList)

@@ -1,11 +1,6 @@
 import Foundation
 
 //MARK: - Page Data
-//struct ResponsePageData: Codable {
-//    let code: String
-//    let errmsg: String?
-//    let data: PageData
-//}
 
 struct ResponsePageData: Codable {
     let code: String
@@ -96,6 +91,3 @@ struct ProductData: Codable {
     let ratingCount: Int
     let ratingStar: Double
 }
-
-
-

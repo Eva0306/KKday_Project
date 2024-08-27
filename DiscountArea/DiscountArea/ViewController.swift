@@ -6,6 +6,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
 
     var httpRequestManager = HTTPRequestManager()
     var products: [Product] = []
+    var configList: [Config] = []
     var productData: [DiscountArea.ProductData] = []
     var productList: [String] = []
     var semaphore = DispatchSemaphore(value: 0)
@@ -13,6 +14,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     var mainProductLabel = UILabel()
     var bestOfferLabel = UILabel()
     var collectionView: UICollectionView!
+    var guideCollectionView: UICollectionView!
     var timer: Timer?
     var selectedTag: Int = 0
     let cellIdentifier = "CustomCell"
@@ -23,11 +25,13 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         super.viewDidLoad()
         httpRequestManager.delegate = self
         setupTitles()
+
         DispatchQueue.global().async {
-            self.httpRequestManager.fetchPageData(tag: 0, sort: 2)
+            self.httpRequestManager.fetchPageData()
             self.semaphore.wait()
             DispatchQueue.main.async {
                 self.httpRequestManager.fetchProductData(productList: self.productList)
+//                self.setUpGuideCollectionView()
                 self.setupCollectionView()
                 self.startAutoScrollTimer()
             }
@@ -48,7 +52,6 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         bestOfferLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(bestOfferLabel)
 
-        // Add constraints for the labels
         NSLayoutConstraint.activate([
             mainProductLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             mainProductLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -57,6 +60,30 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
             bestOfferLabel.topAnchor.constraint(equalTo: mainProductLabel.bottomAnchor, constant: 10),
             bestOfferLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             bestOfferLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+    }
+
+    func setUpGuideCollectionView() {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.minimumLineSpacing = 0
+
+        guideCollectionView = UICollectionView(frame: self.view.bounds, collectionViewLayout: layout)
+        guideCollectionView.backgroundColor = .white
+        guideCollectionView.delegate = self
+        guideCollectionView.dataSource = self
+        guideCollectionView.isPagingEnabled = true
+        guideCollectionView.showsHorizontalScrollIndicator = false
+
+        guideCollectionView.register(promoProductCell.self, forCellWithReuseIdentifier: cellIdentifier)
+        view.addSubview(guideCollectionView)
+
+        guideCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            guideCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 80),
+            guideCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            guideCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            guideCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
 
@@ -112,35 +139,54 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! promoProductCell
 
-        if productData.isEmpty {
-            cell.imageView.image = UIImage(named: "placeHolder")
-        } else {
-            let product = productData[indexPath.item]
-            cell.imageView.loadImage(from: product.imgUrl)
-            cell.configure(labelTexts: [product.name, " 星等 \(product.ratingStar) (\(product.ratingCount))"])
-            cell.price.text = "\(product.currency) \(product.price)"
-            cell.price.font = UIFont.boldSystemFont(ofSize: 18)
+        if collectionView == self.collectionView {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! promoProductCell
+            if productData.isEmpty {
+                cell.imageView.image = UIImage(named: "placeHolder")
+            } else {
+                let product = productData[indexPath.item]
+                cell.imageView.loadImage(from: product.imgUrl)
+                cell.configure(labelTexts: [product.name, " 星等 \(product.ratingStar) (\(product.ratingCount))| 6K+ 已訂購"])
+                cell.price.text = "\(product.currency) \(product.price)"
+                cell.price.font = UIFont.boldSystemFont(ofSize: 18)
 
-            if product.price != product.originPrice{
-                cell.originPrice.textColor = .gray
-                cell.originPrice.attributedText = NSAttributedString(
-                    string: "\(product.currency) \(product.originPrice)",
-                    attributes: [
-                        .strikethroughStyle: NSUnderlineStyle.single.rawValue
-                    ]
-                )
+                if product.price != product.originPrice{
+                    cell.originPrice.textColor = .gray
+                    cell.originPrice.attributedText = NSAttributedString(
+                        string: "\(product.currency) \(product.originPrice)",
+                        attributes: [
+                            .strikethroughStyle: NSUnderlineStyle.single.rawValue
+                        ]
+                    )
+                }
             }
+            return cell
+        } else if collectionView == guideCollectionView{
+            let cell = guideCollectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! promoProductCell
+
+            cell.imageView.loadImage(from: "https://image.kkday.com/v2/image/get/s1.kkday.com/campaign_3667/20240716061550_M1GJa/jpg")
+            cell.gradientView.isHidden = true
+            cell.gradientLayer.isHidden = true
+            return cell
         }
-        return cell
+        return UICollectionViewCell()
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let product = productData[indexPath.item]
-        if let url = URL(string: "https://www.kkday.com/zh-tw/product/\(product.id)") {
-            if UIApplication.shared.canOpenURL(url) {
-                UIApplication.shared.open(url, options: [:])
+
+        if collectionView == self.collectionView{
+            let product = productData[indexPath.item]
+            if let url = URL(string: "https://www.kkday.com/zh-tw/product/\(product.id)") {
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url, options: [:])
+                }
+            }
+        } else if collectionView == guideCollectionView {
+            if let url = URL(string: "https://www.kkday.com/zh-tw/blog/3880/asia-taiwan-taichung-10-spot") {
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url, options: [:])
+                }
             }
         }
     }
@@ -158,15 +204,20 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
 
     // MARK: - HTTPRequestManagerDelegate
 
-    func manager(_ manager: HTTPRequestManager, didGet data: Any) {
-        return
-    }
-
-    func manager(_ manager: HTTPRequestManager, didGetProductList productList: [String]) {
-        self.productList = productList
-        print("Products of this category are \(self.productList)")
+    func manager(_ manager: HTTPRequestManager, didGet pageData: ResponsePageData) {
+        self.configList = pageData.data.data.categories[2].config
+//        print("BBBB\(self.configList)")
+        if let highlightConfig = self.configList.first(where: { $0.detail.layout == "HIGHLIGHT" }) {
+            if let products = highlightConfig.detail.products {
+                productList = products.compactMap { $0.productUrlId }
+                print("Highlight Product IDs: \(productList)")
+            } else {
+                print("No products found in HIGHLIGHT section.")
+            }
+        } else {
+            print("No HIGHLIGHT layout found.")
+        }
         semaphore.signal()
-        return
     }
 
     func didReceiveProductData(_ manager: HTTPRequestManager, products: [DiscountArea.ProductData]) {
