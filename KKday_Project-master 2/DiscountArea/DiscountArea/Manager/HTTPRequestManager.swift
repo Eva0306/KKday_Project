@@ -3,7 +3,9 @@
 import Foundation
 
 protocol HTTPRequestManagerDelegate {
-    func manager(_ manager: HTTPRequestManager, didGet data: Any)
+    func manager(_ manager: HTTPRequestManager, didGet pageData: ResponsePageData)
+    
+    func manager(_ manager: HTTPRequestManager, didGet productData: ResponseProductData)
 
     func manager(_ manager: HTTPRequestManager, didFailWith error: Error)
 }
@@ -25,7 +27,7 @@ class HTTPRequestManager {
             if let error = error {
                 DispatchQueue.main.async {
                     self.delegate?.manager(self, didFailWith: error)
-                    print(error)
+                    print("Error: ", error)
                 }
             }
             
@@ -38,12 +40,12 @@ class HTTPRequestManager {
                     let pageData = try decoder.decode(ResponsePageData.self, from: data)
                     DispatchQueue.main.async {
                         self.delegate?.manager(self, didGet: pageData)
-                        print("========\n\(pageData)\n=======")
+                        //print("========\n\(pageData)\n=======")
                     }
                 } catch {
                     DispatchQueue.main.async {
                         self.delegate?.manager(self, didFailWith: error)
-                        print("Decoding error: \(error)")
+                        //print("Decoding error: \(error)")
                     }
                 }
             }
@@ -92,7 +94,7 @@ class HTTPRequestManager {
                     let productData = try decoder.decode(ResponseProductData.self, from: data)
                     DispatchQueue.main.async {
                         self.delegate?.manager(self, didGet: productData)
-                        print("========\n\(productData)\n=======")
+                        //print("========\n\(productData)\n=======")
                     }
                 } catch {
                     DispatchQueue.main.async {
