@@ -107,7 +107,6 @@ struct ProductData: Codable {
 }
 
 //MARK: - Coupon
-
 struct Coupon: Codable {
     let desc: String
     let title: String

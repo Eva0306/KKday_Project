@@ -1,3 +1,4 @@
+
 import UIKit
 
 class NoticeTableViewCell: UITableViewCell {
@@ -11,7 +12,6 @@ class NoticeTableViewCell: UITableViewCell {
         setupUI()
     }
     
-
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -70,6 +70,7 @@ class NoticeTableViewCell: UITableViewCell {
     private func createBulletPoint() -> NSAttributedString {
         let bulletPointAttachment = NSTextAttachment()
         let bulletSize: CGFloat = 6
+
         bulletPointAttachment.bounds = CGRect(x: 0, y: (UIFont.systemFont(ofSize: 14).capHeight - bulletSize) / 2, width: bulletSize, height: bulletSize)
         bulletPointAttachment.image = UIImage(systemName: "circle.fill")?.withTintColor(.black)
         
@@ -80,6 +81,7 @@ class NoticeTableViewCell: UITableViewCell {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 8
         paragraphStyle.headIndent = 12 + 8
+        
         return paragraphStyle
     }
 }

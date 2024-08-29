@@ -28,6 +28,7 @@ class PromoTabCell: UICollectionViewCell {
         button.isUserInteractionEnabled = false
         
         button.translatesAutoresizingMaskIntoConstraints = false
+
         NSLayoutConstraint.activate([
             button.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             button.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
