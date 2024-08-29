@@ -94,7 +94,6 @@ class HTTPRequestManager {
                     let productData = try decoder.decode(ResponseProductData.self, from: data)
                     DispatchQueue.main.async {
                         self.delegate?.manager(self, didGet: productData)
-
                     }
                 } catch {
                     DispatchQueue.main.async {

@@ -56,6 +56,7 @@ struct Detail: Codable {
     let merchantCoupons: [MerchantCoupon]?
     let coupons: [Coupon]?
     let guides: [Guide]?
+    let contents: [String]?
 }
 
 struct Tab: Codable {
@@ -105,9 +106,7 @@ struct ProductData: Codable {
     let ratingStar: Double
 }
 
-
 //MARK: - Coupon
-
 struct Coupon: Codable {
     let desc: String
     let title: String

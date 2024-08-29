@@ -2,55 +2,33 @@
 
 import UIKit
 
-
-class ViewController: UIViewController,  CountrySelectorViewDelegate {
-
-    var httpRequestManager = HTTPRequestManager()
-    
-    var tableView = UITableView()
-    
-    let titleLabel = UILabel()
-    
-    var countrySelectorView: CountrySelectorView?
-    
-    var dropdownButton: UIButton!
-    
-    var sectionHeaderView: UIView!
-    
-    var popupView: UIView?
+class HeaderViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, CountrySelectorViewDelegate, HTTPRequestManagerDelegate {
     
     var countries: [Category] = []
-    
+    var coupons: [Coupon] = []
     var sectionTitles: [String] = []
-    
     var sectionLabels: [UILabel] = []
-    
+    var sections: [Config] = []
     var selectedCountry: Category? {
         didSet {
             fetchSectionData(for: selectedCountry)
         }
     }
     
-    var configList: [Config] = []
+    let titleLabel = UILabel()
+    let requestManager = HTTPRequestManager()
+    var countrySelectorView: CountrySelectorView?
+    var tableView: UITableView!
+    var dropdownButton: UIButton!
+    var sectionHeaderView: UIView!
+    var popupView: UIView?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        tableView.dataSource = self
-        tableView.delegate = self
-        httpRequestManager.delegate = self
-        
         setupUI()
         setupTableView()
-
-        httpRequestManager.fetchPageData()
-        
-        tableView.register(TitleCell.self, forCellReuseIdentifier: "TitleCell")
-        tableView.register(MerchantCouponContainerCell.self, forCellReuseIdentifier: "MerchantCouponContainerCell")
-        tableView.register(PromoContainerCell.self, forCellReuseIdentifier: "PromoContainerCell")
-        tableView.register(GuideContainerCell.self, forCellReuseIdentifier: "GuideContainerCell")
-        tableView.register(HighlightContainerCell.self, forCellReuseIdentifier: "HighlightContainerCell")
-        tableView.register(CouponContainerCell.self, forCellReuseIdentifier: "CouponContainerCell")
+        requestManager.delegate = self
+        requestManager.fetchPageData()
     }
     
     func setupUI() {
@@ -59,24 +37,6 @@ class ViewController: UIViewController,  CountrySelectorViewDelegate {
         setupDropdownButton()
         setupSectionHeaderView()
         view.bringSubviewToFront(sectionHeaderView)
-    }
-    
-    func setupTableView() {
-        tableView.showsVerticalScrollIndicator = false
-        
-        tableView.separatorStyle = .none
-        
-        view.addSubview(tableView)
-        
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-
-            tableView.topAnchor.constraint(equalTo: sectionHeaderView.bottomAnchor, constant: 16),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 12),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -12),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
     }
     
     func setupBackgroundImageView() {
@@ -168,10 +128,14 @@ class ViewController: UIViewController,  CountrySelectorViewDelegate {
     }
     
     func setupSectionLabels() {
+   
+        sectionLabels.forEach { $0.removeFromSuperview() }
+        sectionLabels.removeAll()
+        
+       
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.showsHorizontalScrollIndicator = false
-//        scrollView.backgroundColor = .red.withAlphaComponent(0.2) //Test
         scrollView.bounces = true
         sectionHeaderView.addSubview(scrollView)
         
@@ -183,16 +147,13 @@ class ViewController: UIViewController,  CountrySelectorViewDelegate {
         ])
         
         let underlineView = UIView()
-        underlineView.backgroundColor = .systemTeal
         underlineView.translatesAutoresizingMaskIntoConstraints = false
-        underlineView.backgroundColor = .systemTeal.withAlphaComponent(0.5) //Test
-//        underlineView.frame = CGRect(x: 16, y: 38, width: 100, height: 2) // 手动设置一个初始位置和大小
+        underlineView.backgroundColor = .systemTeal.withAlphaComponent(0.5)
         scrollView.addSubview(underlineView)
         
         var underlineLeadingConstraint: NSLayoutConstraint?
         var underlineWidthConstraint: NSLayoutConstraint?
         var previousLabel: UILabel?
-        sectionLabels.removeAll()
         
         for (index, title) in sectionTitles.enumerated() {
             let label = UILabel()
@@ -232,7 +193,28 @@ class ViewController: UIViewController,  CountrySelectorViewDelegate {
         underlineView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
         underlineView.heightAnchor.constraint(equalToConstant: 2).isActive = true
         previousLabel?.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -16).isActive = true
-        print("Underline View Frame: \(underlineView.frame)")
+    }
+    
+    func setupTableView() {
+        tableView = UITableView()
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tableView)
+        
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.separatorStyle = .none
+        tableView.estimatedRowHeight = 44
+        tableView.rowHeight = UITableView.automaticDimension
+        
+        tableView.register(CouponTableViewCell.self, forCellReuseIdentifier: "CouponCell")
+        tableView.register(NoticeTableViewCell.self, forCellReuseIdentifier: "NoticeCell")
+        
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: sectionHeaderView.bottomAnchor, constant: 16),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
     }
     
     @objc func showCountrySelector() {
@@ -252,26 +234,22 @@ class ViewController: UIViewController,  CountrySelectorViewDelegate {
     
     
     func didSelectCountry(_ country: Category?) {
-        self.configList = []
-        
         selectedCountry = country
         hideCountrySelector()
         
+        coupons.removeAll()
         sectionTitles.removeAll()
         
-        // DOING
-//        sectionHeaderView.removeFromSuperview()
-//        setupSectionHeaderView()
+        sectionHeaderView.removeFromSuperview()
+        setupTableView()
         
+        tableView.reloadData()
         
         if let selectedCountry = country {
-            self.configList = selectedCountry.config
             dropdownButton.setTitle(selectedCountry.name, for: .normal)
+            //requestManager.fetchCoupons(for: selectedCountry.name)
             sectionTitles = selectedCountry.config.compactMap { $0.detail.title }
             updateSectionLabels()
-            
-            tableView.reloadData()
-            
         }
     }
     
@@ -322,140 +300,202 @@ class ViewController: UIViewController,  CountrySelectorViewDelegate {
             tableView.scrollToRow(at: indexPath, at: .top, animated: true)
         }
     }
-}
-
-extension ViewController: HTTPRequestManagerDelegate {
-    func manager(_ manager: HTTPRequestManager, didGet pageData: ResponsePageData) {
-        
-        countries = pageData.data.data.categories
-        countrySelectorView?.countries = countries
-        
-        self.configList = pageData.data.data.categories[0].config
-        
+    
+    func populateSections(from configs: [Config]) {
+        sections = configs.filter { config in
+            if config.type == "COUPON", let coupons = config.detail.coupons, !coupons.isEmpty {
+                return true
+            } else if config.type == "DESCRIPTION", let _ = config.detail.title {
+                return true
+            }
+            return false
+        }
         tableView.reloadData()
     }
     
+    // MARK: - HTTPRequestManagerDelegate (Specific Methods)
+    
+    func manager(_ manager: HTTPRequestManager, didGet pageData: ResponsePageData) {
+        countries = pageData.data.data.categories
+        countrySelectorView?.countries = countries
+        
+        if let taiwanCategory = countries.first(where: { $0.name == "台湾" }) {
+            selectedCountry = taiwanCategory
+            dropdownButton.setTitle(taiwanCategory.name, for: .normal)
+            fetchSectionData(for: selectedCountry)
+        } else if !countries.isEmpty {
+            selectedCountry = countries.first
+            dropdownButton.setTitle(selectedCountry?.name, for: .normal)
+            fetchSectionData(for: selectedCountry)
+        }
+    }
+    
     func manager(_ manager: HTTPRequestManager, didGet productData: ResponseProductData) {
+        self.manager(manager, didGet: productData as Any)
+    }
+    
+    func manager(_ manager: HTTPRequestManager, didGet coupons: [Coupon]) {
+        self.manager(manager, didGet: coupons as Any)
+    }
+    
+    // MARK: - HTTPRequestManagerDelegate (General Methods)
+    
+    func manager(_ manager: HTTPRequestManager, didGet data: Any) {
+        if let pageData = data as? ResponsePageData {
+            handlePageData(pageData)
+        } else if let coupons = data as? [Coupon] {
+            handleCoupons(coupons)
+        } else if let productData = data as? ResponseProductData {
+            handleProductData(productData)
+        } else {
+            print("Received unknown data type")
+        }
+    }
+    
+    func manager(_ manager: HTTPRequestManager, didFailWith error: Error) {
+        print("Failed to fetch data: \(error.localizedDescription)")
+    }
+    
+    // MARK: - Private Methods
+    
+    private func handlePageData(_ pageData: ResponsePageData) {
+        countries = pageData.data.data.categories
+        countrySelectorView?.countries = countries
+        // 更新UI或其他處理
+    }
+    
+    private func handleCoupons(_ coupons: [Coupon]) {
+        self.coupons = coupons
+        tableView.isHidden = false
+        tableView.reloadData()
+    }
+    
+    private func handleProductData(_ productData: ResponseProductData) {
         
     }
+    // MARK: - UITableViewDataSource, UITableViewDelegate
     
-    func manager(_ manager: HTTPRequestManager, didFailWith error: any Error) {
-        print(error)
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return sectionTitles.count
     }
     
-}
-
-extension ViewController: UITableViewDataSource, UITableViewDelegate {
-    
-    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 500
-    }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
-        return configList.count * 2
+        return section == 0 ? coupons.count : 1
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return sectionTitles[section]
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        let configIndex = indexPath.row / 2
-        let config = configList[configIndex]
-        
-        if indexPath.row % 2 == 0 {
-            
-            let cell = tableView.dequeueReusableCell(withIdentifier: "TitleCell", for: indexPath) as! TitleCell
-            cell.configure(with: config.detail)
-            
-            cell.selectionStyle = .none
-            return cell
-            
-        } else {
-            if config.type == "MERCHANT_COUPON" {
-                
-                let cell = tableView.dequeueReusableCell(withIdentifier: "MerchantCouponContainerCell", for: indexPath) as! MerchantCouponContainerCell
-                
-                if let merchantCoupons = config.detail.merchantCoupons {
-                    cell.configure(with: merchantCoupons)
-                    cell.merchantCouponisExpanded = false
-                    //cell.configure(with: merchantCoupons, isExpanded: merchantCouponisExpanded)
-                } else {
-                    print("沒有商家優惠券")
-                }
-                
-                cell.delegate = self
-                
-                cell.selectionStyle = .none
-                
-                return cell
-                
-            } else if config.type == "PRODUCT" && config.detail.layout == "HIGHLIGHT" {
-                
-                let cell = tableView.dequeueReusableCell(withIdentifier: "HighlightContainerCell", for: indexPath) as! HighlightContainerCell
-                
-                if let highlights = config.detail.products {
-                    cell.configure(with: highlights)
-                }
-                
-                return cell
-                
-            } else if config.type == "PRODUCT" && config.detail.layout != nil {
-                
-                let cell = tableView.dequeueReusableCell(withIdentifier: "PromoContainerCell", for: indexPath) as! PromoContainerCell
-                
-                cell.configure(with: config.detail)
-                
-                cell.delegate = self
-                
-                cell.selectionStyle = .none
-                
-                return cell
-                
-            } else if config.type == "GUIDE" {
-                
-                let cell = tableView.dequeueReusableCell(withIdentifier: "GuideContainerCell", for: indexPath) as! GuideContainerCell
-                
-                if let guides = config.detail.guides {
-                    cell.configure(with: guides)
-                }
-                
-                cell.selectionStyle = .none
-                
-                return cell
-            } else if config.type == "COUPON" {
-                
-                let cell = tableView.dequeueReusableCell(withIdentifier: "CouponContainerCell", for: indexPath) as! CouponContainerCell
-                
-                if let coupons = config.detail.coupons {
-                    cell.configure(with: coupons)
-                }
-                
-                return cell
-            }
-            
+        guard indexPath.section < sectionTitles.count else {
             return UITableViewCell()
         }
-    }
-}
-
-//MARK: - Merchant Coupon Container Cell Delegate
-extension ViewController: MerchantCouponContainerCellDelegate {
-    
-    func didSelectMerchantCoupon(_ coupon: MerchantCoupon) {
-        let imageVC = MerchantCouponImageViewController()
-        imageVC.merchantCoupon = coupon
         
-        let navController = UINavigationController(rootViewController: imageVC)
-        navController.modalPresentationStyle = .fullScreen
-        present(navController, animated: true, completion: nil)
+        if indexPath.section == 0 {
+            guard indexPath.row < coupons.count,
+                  let cell = tableView.dequeueReusableCell(withIdentifier: "CouponCell", for: indexPath) as? CouponTableViewCell else {
+                return UITableViewCell()
+            }
+            let coupon = coupons[indexPath.row]
+            cell.configure(with: coupon)
+            
+            cell.redeemAction = { [weak self] in
+                self?.showPopupView()
+            }
+            return cell
+        } else {
+            return tableView.dequeueReusableCell(withIdentifier: "NoticeCell", for: indexPath) as? NoticeTableViewCell ?? UITableViewCell()
+        }
     }
-}
-
-extension ViewController: PromoContainerCellDelegate {
-    func shouldDeleteTableViewCell(_ cell: PromoContainerCell) {
-        if let indexPath = tableView.indexPath(for: cell) {
-            let previousIndexPath = IndexPath(row: indexPath.row - 1, section: indexPath.section)
-            configList.remove(at: indexPath.row / 2)
-            tableView.deleteRows(at: [indexPath, previousIndexPath], with: .automatic)
+    
+    func showPopupView() {
+        let popupView = UIView()
+        popupView.backgroundColor = .white
+        popupView.layer.cornerRadius = 20
+        popupView.layer.masksToBounds = true
+        popupView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(popupView)
+        
+        let handleView = UIView()
+        handleView.backgroundColor = .lightGray
+        handleView.layer.cornerRadius = 2.5
+        handleView.translatesAutoresizingMaskIntoConstraints = false
+        popupView.addSubview(handleView)
+        
+        let googleButton = UIButton(type: .system)
+        googleButton.setTitle("Google 登入", for: .normal)
+        googleButton.backgroundColor = .systemTeal
+        googleButton.tintColor = .white
+        googleButton.layer.cornerRadius = 10
+        googleButton.translatesAutoresizingMaskIntoConstraints = false
+        popupView.addSubview(googleButton)
+        
+        let closeButton1 = UIButton(type: .system)
+        closeButton1.setImage(UIImage(systemName: "xmark"), for: .normal)
+        closeButton1.tintColor = .black
+        closeButton1.addTarget(self, action: #selector(closePopupView), for: .touchUpInside)
+        closeButton1.translatesAutoresizingMaskIntoConstraints = false
+        popupView.addSubview(closeButton1)
+        
+        let closeButton2 = UIButton(type: .system)
+        closeButton2.setTitle("關閉", for: .normal)
+        closeButton2.tintColor = .systemTeal
+        closeButton2.addTarget(self, action: #selector(closePopupView), for: .touchUpInside)
+        closeButton2.translatesAutoresizingMaskIntoConstraints = false
+        popupView.addSubview(closeButton2)
+        
+        let imageView = UIImageView(image: UIImage(named: "allCUTE"))
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        popupView.addSubview(imageView)
+        
+        NSLayoutConstraint.activate([
+            popupView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            popupView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            popupView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            popupView.heightAnchor.constraint(equalToConstant: 300),
+            
+            handleView.topAnchor.constraint(equalTo: popupView.topAnchor, constant: 8),
+            handleView.centerXAnchor.constraint(equalTo: popupView.centerXAnchor),
+            handleView.widthAnchor.constraint(equalToConstant: 44),
+            handleView.heightAnchor.constraint(equalToConstant: 2.5),
+            
+            imageView.topAnchor.constraint(equalTo: popupView.topAnchor, constant: 40),
+            imageView.centerXAnchor.constraint(equalTo: popupView.centerXAnchor),
+            imageView.widthAnchor.constraint(equalToConstant: 100),
+            imageView.heightAnchor.constraint(equalToConstant: 100),
+            
+            googleButton.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20),
+            googleButton.centerXAnchor.constraint(equalTo: popupView.centerXAnchor),
+            googleButton.widthAnchor.constraint(equalToConstant: 200),
+            googleButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            closeButton1.leadingAnchor.constraint(equalTo: popupView.leadingAnchor, constant: 16),
+            closeButton1.topAnchor.constraint(equalTo: popupView.topAnchor, constant: 20),
+            
+            closeButton2.topAnchor.constraint(equalTo: googleButton.bottomAnchor, constant: 10),
+            closeButton2.centerXAnchor.constraint(equalTo: popupView.centerXAnchor),
+            closeButton2.widthAnchor.constraint(equalToConstant: 100),
+            closeButton2.heightAnchor.constraint(equalToConstant: 50)
+        ])
+        
+        popupView.transform = CGAffineTransform(translationX: 0, y: 300)
+        UIView.animate(withDuration: 0.3) {
+            popupView.transform = .identity
+        }
+        self.popupView = popupView
+    }
+    
+    @objc func closePopupView() {
+        UIView.animate(withDuration: 0.3, animations: {
+            self.popupView?.transform = CGAffineTransform(translationX: 0, y: 300)
+        }) { _ in
+            self.popupView?.removeFromSuperview()
+            
+            self.popupView = nil
         }
     }
 }
+

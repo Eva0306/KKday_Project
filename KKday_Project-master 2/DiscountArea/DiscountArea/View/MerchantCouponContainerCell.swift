@@ -9,14 +9,13 @@ protocol MerchantCouponContainerCellDelegate: AnyObject {
 class MerchantCouponContainerCell: UITableViewCell {
     
     var merchantCouponTableView = UITableView()
-    
+ 
     var delegate: MerchantCouponContainerCellDelegate?
     
     var merchantCouponList: [MerchantCoupon] = [] {
         didSet {
             merchantCouponTableView.reloadData()
             self.invalidateIntrinsicContentSize()
-
         }
     }
     
@@ -39,7 +38,7 @@ class MerchantCouponContainerCell: UITableViewCell {
         
         merchantCouponTableView.register(MerchantCouponTableViewCell.self, forCellReuseIdentifier: "MerchantCouponTableViewCell")
         merchantCouponTableView.register(ShowMoreCell.self, forCellReuseIdentifier: "ShowMoreCell")
-        
+
         contentView.addSubview(merchantCouponTableView)
 
         merchantCouponTableView.translatesAutoresizingMaskIntoConstraints = false
@@ -59,6 +58,7 @@ class MerchantCouponContainerCell: UITableViewCell {
         let tableViewHeight = merchantCouponTableView.contentSize.height
         
         return CGSize(width: targetSize.width, height: tableViewHeight)
+
     }
     
     func configure(with coupons: [MerchantCoupon]) {
@@ -113,6 +113,7 @@ extension MerchantCouponContainerCell: UITableViewDataSource {
             tableView.beginUpdates()
             tableView.endUpdates()
         }
+
     }
 }
 
@@ -120,7 +121,7 @@ extension MerchantCouponContainerCell: UITableViewDataSource {
 extension MerchantCouponContainerCell: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
+
         let selectedCoupon = merchantCouponList[indexPath.row]
         delegate?.didSelectMerchantCoupon(selectedCoupon)
     }

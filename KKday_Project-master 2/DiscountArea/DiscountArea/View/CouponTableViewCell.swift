@@ -73,8 +73,8 @@ class CouponTableViewCell: UITableViewCell {
 
         NSLayoutConstraint.activate([
             backgroundImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
-            backgroundImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            backgroundImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
+            backgroundImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 6),
+            backgroundImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor,constant: -6),
             backgroundImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12),
 
             discountTitleLabel.topAnchor.constraint(equalTo: backgroundImageView.topAnchor, constant: padding),

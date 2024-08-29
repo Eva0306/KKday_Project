@@ -7,7 +7,6 @@ protocol PromoContainerCellDelegate: AnyObject {
     func shouldDeleteTableViewCell(_ cell: PromoContainerCell)
 }
 
-
 class PromoContainerCell: UITableViewCell {
 
     var collectionView: UICollectionView!
@@ -26,10 +25,8 @@ class PromoContainerCell: UITableViewCell {
     
     private var layout: PromoLayoutType = .grid
     
-
     weak var delegate: PromoContainerCellDelegate?
     
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupCollectionView()
@@ -100,12 +97,10 @@ class PromoContainerCell: UITableViewCell {
                 
                 httpRequestManager.fetchProductData(productList: tabProducts[selectedTabIndex].productIds)
                 
-
             } else {
                 self.productsId = configDetail.products?.map{ $0.productUrlId } ?? []
                 
                 httpRequestManager.fetchProductData(productList: productsId)
-                
 
             }
         }
@@ -119,7 +114,6 @@ class PromoContainerCell: UITableViewCell {
             delegate?.shouldDeleteTableViewCell(self)
         }
     }
-
 }
 
 // MARK: - HTTPRequestManagerDelegate
@@ -219,7 +213,6 @@ extension PromoContainerCell: UICollectionViewDelegate {
         } else {
             // 跳出打開safari導到網頁
             let productId = products[indexPath.item].id
-
             let openUrl = "https://www.kkday.com/zh-tw/product/\(productId)"
             open(urlString: openUrl)
         }
