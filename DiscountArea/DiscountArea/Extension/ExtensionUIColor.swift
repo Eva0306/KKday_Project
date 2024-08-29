@@ -1,9 +1,4 @@
-//
-//  HexColorExtension.swift
-//  DiscountArea
-//
-//  Created by Nicky Y on 2024/8/23.
-//
+
 
 import UIKit
 

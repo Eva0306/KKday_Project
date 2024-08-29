@@ -1,9 +1,4 @@
-//
-//  CollectionViewFactory.swift
-//  DiscountArea
-//
-//  Created by Nicky Y on 2024/8/26.
-//
+
 
 import UIKit
 
@@ -23,7 +18,7 @@ class CollectionViewFactory {
         return collectionView
     }
 
-    private func createLayout(for dataType: PromoLayoutType) -> UICollectionViewCompositionalLayout {
+    func createLayout(for dataType: PromoLayoutType) -> UICollectionViewCompositionalLayout {
         switch dataType {
         case .tabRow:
             return UICollectionViewCompositionalLayout { sectionIndex, layoutEnvironment in

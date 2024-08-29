@@ -28,6 +28,7 @@ class PromoTabCell: UICollectionViewCell {
         button.isUserInteractionEnabled = false
         
         button.translatesAutoresizingMaskIntoConstraints = false
+
         NSLayoutConstraint.activate([
             button.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             button.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
@@ -230,21 +231,27 @@ class PromoProductCell: UICollectionViewCell {
     }
     
     // MARK: Function
-    func configure(with product: testProduct) {
-        imageView.image = UIImage(named: product.imgUrl)
-        discountLabel.text = "\(product.discount)% OFF"
+    func configure(with product: ProductData) {
+        if let url = URL(string: product.imgUrl) {
+            imageView.loadImage(from: url)
+        } else {
+            imageView.image = UIImage(systemName: "photo")
+        }
+        
+        discountLabel.text = "\(Int(product.discount * 100))% OFF"
         nameLabel.text = product.name
         ratingLabel.text = "\(product.ratingStar)(\(product.ratingCount))"
-        originalPriceLabel.text = "TWD \(product.originalPrice)"
+        originalPriceLabel.text = "TWD \(product.originPrice)"
         originalPriceLabel.attributedText = originalPriceLabel.text?.strikeThrough()
         priceLabel.text = "TWD \(product.price) 起"
         
         isHeartSelected = false
         updateHeartButtonImage()
         
-        gradientView.isHidden = product.discount == 0
-        discountLabel.isHidden = product.discount == 0
-        
+        originalPriceLabel.isHidden = product.originPrice == product.price
+        gradientView.isHidden = product.discount <= 0.01 || product.discount >= 1
+        discountLabel.isHidden = product.discount <= 0.01 || product.discount >= 1
+    
     }
     
     @objc private func heartButtonTapped() {
