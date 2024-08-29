@@ -450,7 +450,7 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
                 if let guides = config.detail.guides {
                     cell.configure(with: guides)
                 }
-                
+
                 cell.selectionStyle = .none
                 
                 return cell
