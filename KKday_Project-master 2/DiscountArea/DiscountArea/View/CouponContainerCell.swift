@@ -14,24 +14,6 @@ class CouponContainerCell: UITableViewCell {
     //TODO:
     var popupView: UIView?
     
-    lazy var titleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "會員神券"
-        label.textAlignment = .left
-        label.font = UIFont(name: "HelveticaNeue", size: 22)
-        label.textColor = .black
-        return label
-    }()
-    
-    lazy var descriptonLabel: UILabel = {
-        let label = UILabel()
-        label.text = "會員限定好康折扣券，專屬優惠好康不漏接"
-        label.textAlignment = .left
-        label.font = UIFont(name: "HelveticaNeue", size: 16)
-        label.textColor = UIColor(hex: "727272")
-        return label
-    }()
-    
     var couponList: [Coupon] = [] {
         didSet {
             couponTableView.reloadData()
@@ -55,40 +37,22 @@ class CouponContainerCell: UITableViewCell {
         
         couponTableView.register(CouponTableViewCell.self, forCellReuseIdentifier: "CouponTableViewCell")
         
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(descriptonLabel)
         contentView.addSubview(couponTableView)
         
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        descriptonLabel.translatesAutoresizingMaskIntoConstraints = false
         couponTableView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            
-            descriptonLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
-            descriptonLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            descriptonLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            
-            couponTableView.topAnchor.constraint(equalTo: descriptonLabel.bottomAnchor, constant: 24),
+            couponTableView.topAnchor.constraint(equalTo: contentView.topAnchor),
             couponTableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             couponTableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             couponTableView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
     }
+    
     override func systemLayoutSizeFitting(_ targetSize: CGSize, withHorizontalFittingPriority horizontalFittingPriority: UILayoutPriority, verticalFittingPriority: UILayoutPriority) -> CGSize {
         couponTableView.layoutIfNeeded()
         let tableViewHeight = couponTableView.contentSize.height
-        
-        let titleLabelHeight = titleLabel.intrinsicContentSize.height
-        let descriptionLabelHeight = descriptonLabel.intrinsicContentSize.height
-        
-        
-        let totalHeight = 24 + titleLabelHeight + 8 + descriptionLabelHeight + 24 + tableViewHeight
-        
-        return CGSize(width: targetSize.width, height: totalHeight)
+        return CGSize(width: targetSize.width, height: tableViewHeight)
     }
     
     func configure(with coupons: [Coupon]) {
@@ -100,7 +64,7 @@ class CouponContainerCell: UITableViewCell {
 extension CouponContainerCell: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-            return couponList.count
+        return couponList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -196,9 +160,7 @@ extension CouponContainerCell {
             self.popupView?.transform = CGAffineTransform(translationX: 0, y: 300)
         }) { _ in
             self.popupView?.removeFromSuperview()
-            
             self.popupView = nil
         }
     }
 }
-
