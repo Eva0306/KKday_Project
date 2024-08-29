@@ -474,7 +474,6 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
             return UITableViewCell()
         }
     }
-
 }
 
 //MARK: - Merchant Coupon Container Cell Delegate
@@ -529,11 +528,12 @@ extension ViewController: UIScrollViewDelegate {
 
 extension ViewController: PromoContainerCellDelegate {
     func shouldDeleteTableViewCell(_ cell: PromoContainerCell) {
-        if let indexPath = tableView.indexPath(for: cell) {
-            let previousIndexPath = IndexPath(row: indexPath.row - 1, section: indexPath.section)
-            configList.remove(at: indexPath.row / 2)
-            tableView.deleteRows(at: [indexPath, previousIndexPath], with: .automatic)
-
-        }
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
+        
+        configList.remove(at: indexPath.section)
+        
+        tableView.beginUpdates()
+        tableView.reloadSections(IndexSet(integer: indexPath.section), with: .automatic)
+        tableView.endUpdates()
     }
 }
