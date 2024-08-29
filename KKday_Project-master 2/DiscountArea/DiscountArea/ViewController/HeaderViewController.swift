@@ -6,7 +6,6 @@ class HeaderViewController: UIViewController, UITableViewDataSource, UITableView
     
     var countries: [Category] = []
     var coupons: [Coupon] = []
-    var noticeData: String? = nil
     var sectionTitles: [String] = []
     var sectionLabels: [UILabel] = []
     var sections: [Config] = []
@@ -129,10 +128,14 @@ class HeaderViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     func setupSectionLabels() {
+   
+        sectionLabels.forEach { $0.removeFromSuperview() }
+        sectionLabels.removeAll()
+        
+       
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.showsHorizontalScrollIndicator = false
-//        scrollView.backgroundColor = .red.withAlphaComponent(0.2) //Test
         scrollView.bounces = true
         sectionHeaderView.addSubview(scrollView)
         
@@ -144,16 +147,13 @@ class HeaderViewController: UIViewController, UITableViewDataSource, UITableView
         ])
         
         let underlineView = UIView()
-        underlineView.backgroundColor = .systemTeal
         underlineView.translatesAutoresizingMaskIntoConstraints = false
-        underlineView.backgroundColor = .systemTeal.withAlphaComponent(0.5) //Test
-//        underlineView.frame = CGRect(x: 16, y: 38, width: 100, height: 2) // 手动设置一个初始位置和大小
+        underlineView.backgroundColor = .systemTeal.withAlphaComponent(0.5)
         scrollView.addSubview(underlineView)
         
         var underlineLeadingConstraint: NSLayoutConstraint?
         var underlineWidthConstraint: NSLayoutConstraint?
         var previousLabel: UILabel?
-        sectionLabels.removeAll()
         
         for (index, title) in sectionTitles.enumerated() {
             let label = UILabel()
@@ -193,7 +193,6 @@ class HeaderViewController: UIViewController, UITableViewDataSource, UITableView
         underlineView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
         underlineView.heightAnchor.constraint(equalToConstant: 2).isActive = true
         previousLabel?.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -16).isActive = true
-        print("Underline View Frame: \(underlineView.frame)")
     }
     
     func setupTableView() {
@@ -242,7 +241,6 @@ class HeaderViewController: UIViewController, UITableViewDataSource, UITableView
         sectionTitles.removeAll()
         
         sectionHeaderView.removeFromSuperview()
-        setupSectionHeaderView()
         setupTableView()
         
         tableView.reloadData()
@@ -316,55 +314,65 @@ class HeaderViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     // MARK: - HTTPRequestManagerDelegate (Specific Methods)
-        
-        func manager(_ manager: HTTPRequestManager, didGet pageData: ResponsePageData) {
-            // 如果不需要特殊处理，可以将其留空或者直接调用通用方法
-            self.manager(manager, didGet: pageData as Any)
-        }
-        
-        func manager(_ manager: HTTPRequestManager, didGet productData: ResponseProductData) {
-            self.manager(manager, didGet: productData as Any)
-        }
-        
-        func manager(_ manager: HTTPRequestManager, didGet coupons: [Coupon]) {
-            self.manager(manager, didGet: coupons as Any)
-        }
-        
-        // MARK: - HTTPRequestManagerDelegate (General Methods)
-        
-        func manager(_ manager: HTTPRequestManager, didGet data: Any) {
-            if let pageData = data as? ResponsePageData {
-                handlePageData(pageData)
-            } else if let coupons = data as? [Coupon] {
-                handleCoupons(coupons)
-            } else if let productData = data as? ResponseProductData {
-                handleProductData(productData)
-            } else {
-                print("Received unknown data type")
-            }
-        }
-
-        func manager(_ manager: HTTPRequestManager, didFailWith error: Error) {
-            print("Failed to fetch data: \(error.localizedDescription)")
-        }
-
-        // MARK: - Private Methods
-
-        private func handlePageData(_ pageData: ResponsePageData) {
-            countries = pageData.data.data.categories
-            countrySelectorView?.countries = countries
-            // 更新UI或其他處理
-        }
-
-        private func handleCoupons(_ coupons: [Coupon]) {
-            self.coupons = coupons
-            tableView.isHidden = false
-            tableView.reloadData()
-        }
     
-        private func handleProductData(_ productData: ResponseProductData) {
-            // 這個方法可能在 HeaderViewController 中不會用到，你可以留空或者日後實現具體邏輯
+    func manager(_ manager: HTTPRequestManager, didGet pageData: ResponsePageData) {
+        countries = pageData.data.data.categories
+        countrySelectorView?.countries = countries
+        
+        if let taiwanCategory = countries.first(where: { $0.name == "台湾" }) {
+            selectedCountry = taiwanCategory
+            dropdownButton.setTitle(taiwanCategory.name, for: .normal)
+            fetchSectionData(for: selectedCountry)
+        } else if !countries.isEmpty {
+            selectedCountry = countries.first
+            dropdownButton.setTitle(selectedCountry?.name, for: .normal)
+            fetchSectionData(for: selectedCountry)
         }
+    }
+    
+    func manager(_ manager: HTTPRequestManager, didGet productData: ResponseProductData) {
+        self.manager(manager, didGet: productData as Any)
+    }
+    
+    func manager(_ manager: HTTPRequestManager, didGet coupons: [Coupon]) {
+        self.manager(manager, didGet: coupons as Any)
+    }
+    
+    // MARK: - HTTPRequestManagerDelegate (General Methods)
+    
+    func manager(_ manager: HTTPRequestManager, didGet data: Any) {
+        if let pageData = data as? ResponsePageData {
+            handlePageData(pageData)
+        } else if let coupons = data as? [Coupon] {
+            handleCoupons(coupons)
+        } else if let productData = data as? ResponseProductData {
+            handleProductData(productData)
+        } else {
+            print("Received unknown data type")
+        }
+    }
+    
+    func manager(_ manager: HTTPRequestManager, didFailWith error: Error) {
+        print("Failed to fetch data: \(error.localizedDescription)")
+    }
+    
+    // MARK: - Private Methods
+    
+    private func handlePageData(_ pageData: ResponsePageData) {
+        countries = pageData.data.data.categories
+        countrySelectorView?.countries = countries
+        // 更新UI或其他處理
+    }
+    
+    private func handleCoupons(_ coupons: [Coupon]) {
+        self.coupons = coupons
+        tableView.isHidden = false
+        tableView.reloadData()
+    }
+    
+    private func handleProductData(_ productData: ResponseProductData) {
+        
+    }
     // MARK: - UITableViewDataSource, UITableViewDelegate
     
     func numberOfSections(in tableView: UITableView) -> Int {
