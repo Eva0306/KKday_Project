@@ -17,7 +17,7 @@ class GuideContainerCell: UITableViewCell, UICollectionViewDataSource, UICollect
             guideCollectionView.layoutIfNeeded()
         }
     }
-    
+
     var backgroundImageView = UIImageView()
 
     var guideCollectionView: UICollectionView!
@@ -34,6 +34,7 @@ class GuideContainerCell: UITableViewCell, UICollectionViewDataSource, UICollect
         setupBackground()
         setUpGuideCollectionView()
         setupPageControl()
+        startAutoScrollTimer()
     }
 
     required init?(coder: NSCoder) {
