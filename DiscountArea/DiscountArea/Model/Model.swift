@@ -56,6 +56,7 @@ struct Detail: Codable {
     let merchantCoupons: [MerchantCoupon]?
     let coupons: [Coupon]?
     let guides: [Guide]?
+    let contents: [String]?
 }
 
 struct Tab: Codable {
@@ -106,7 +107,6 @@ struct ProductData: Codable {
 }
 
 //MARK: - Coupon
-
 struct Coupon: Codable {
     let desc: String
     let title: String
@@ -155,11 +155,4 @@ struct Coupon: Codable {
         dateFormatter.timeZone = TimeZone.current
         return dateFormatter.date(from: dateString)
     }
-}
-
-//MARK: - Notice
-struct NoticeDetail: Codable {
-    let title: String
-    let subtitle: String
-    let contents: [String]
 }

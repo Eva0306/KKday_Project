@@ -2,6 +2,11 @@
 
 import UIKit
 
+
+protocol PromoContainerCellDelegate: AnyObject {
+    func shouldDeleteTableViewCell(_ cell: PromoContainerCell)
+}
+
 class PromoContainerCell: UITableViewCell {
 
     var collectionView: UICollectionView!
@@ -19,6 +24,8 @@ class PromoContainerCell: UITableViewCell {
     var selectedTabIndex = 0
     
     private var layout: PromoLayoutType = .grid
+    
+    weak var delegate: PromoContainerCellDelegate?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -94,11 +101,18 @@ class PromoContainerCell: UITableViewCell {
                 self.productsId = configDetail.products?.map{ $0.productUrlId } ?? []
                 
                 httpRequestManager.fetchProductData(productList: productsId)
-                
+
             }
         }
         
         collectionView.reloadData()
+    }
+
+    
+    func checkIfShouldDelete() {
+        if products.isEmpty {
+            delegate?.shouldDeleteTableViewCell(self)
+        }
     }
 }
 
@@ -111,8 +125,11 @@ extension PromoContainerCell: HTTPRequestManagerDelegate {
     func manager(_ manager: HTTPRequestManager, didGet productData: ResponseProductData) {
         self.products = []
         self.products = Array(productData.data.prefix(8))
+        
         collectionView.reloadData()
         self.invalidateIntrinsicContentSize()
+        checkIfShouldDelete()
+
     }
     
     func manager(_ manager: HTTPRequestManager, didFailWith error: any Error) {

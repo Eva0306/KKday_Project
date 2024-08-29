@@ -44,7 +44,9 @@ class GuideContainerCell: UITableViewCell, UICollectionViewDataSource, UICollect
             backgroundImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
             backgroundImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             backgroundImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            backgroundImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+            backgroundImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            backgroundImageView.heightAnchor.constraint(equalToConstant: 200)
+
         ])
     }
 

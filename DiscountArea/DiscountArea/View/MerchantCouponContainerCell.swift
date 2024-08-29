@@ -9,12 +9,13 @@ protocol MerchantCouponContainerCellDelegate: AnyObject {
 class MerchantCouponContainerCell: UITableViewCell {
     
     var merchantCouponTableView = UITableView()
-    
+ 
     var delegate: MerchantCouponContainerCellDelegate?
     
     var merchantCouponList: [MerchantCoupon] = [] {
         didSet {
             merchantCouponTableView.reloadData()
+            self.invalidateIntrinsicContentSize()
         }
     }
     
@@ -30,16 +31,16 @@ class MerchantCouponContainerCell: UITableViewCell {
     }
     
     private func setupView() {
-        
+
         merchantCouponTableView.dataSource = self
         merchantCouponTableView.delegate = self
         merchantCouponTableView.isScrollEnabled = false
         
         merchantCouponTableView.register(MerchantCouponTableViewCell.self, forCellReuseIdentifier: "MerchantCouponTableViewCell")
         merchantCouponTableView.register(ShowMoreCell.self, forCellReuseIdentifier: "ShowMoreCell")
-        
+
         contentView.addSubview(merchantCouponTableView)
-        
+
         merchantCouponTableView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -57,6 +58,7 @@ class MerchantCouponContainerCell: UITableViewCell {
         let tableViewHeight = merchantCouponTableView.contentSize.height
         
         return CGSize(width: targetSize.width, height: tableViewHeight)
+
     }
     
     func configure(with coupons: [MerchantCoupon]) {
@@ -90,6 +92,7 @@ extension MerchantCouponContainerCell: UITableViewDataSource {
             cell.updateShowMoreButtonTitle(with: hiddenItemCount)
             
             return cell
+            
         } else {
             
             let cell = tableView.dequeueReusableCell(withIdentifier: "MerchantCouponTableViewCell", for: indexPath) as! MerchantCouponTableViewCell
@@ -104,11 +107,13 @@ extension MerchantCouponContainerCell: UITableViewDataSource {
     @objc func showMoreTapped() {
         merchantCouponisExpanded = true
         merchantCouponTableView.reloadData()
+
         print(merchantCouponTableView.contentSize.height)
         if let tableView = self.superview as? UITableView {
             tableView.beginUpdates()
             tableView.endUpdates()
         }
+
     }
 }
 
@@ -116,7 +121,7 @@ extension MerchantCouponContainerCell: UITableViewDataSource {
 extension MerchantCouponContainerCell: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
+
         let selectedCoupon = merchantCouponList[indexPath.row]
         delegate?.didSelectMerchantCoupon(selectedCoupon)
     }
