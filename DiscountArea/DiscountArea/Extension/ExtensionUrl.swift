@@ -7,7 +7,6 @@
 
 import Foundation
 import UIKit
-import WebKit
 
 func open(urlString: String) {
     guard let url = URL(string: urlString), UIApplication.shared.canOpenURL(url) else {

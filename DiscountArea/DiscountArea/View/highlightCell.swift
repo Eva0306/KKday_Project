@@ -112,7 +112,7 @@ class highlightCell: UICollectionViewCell {
         heartButton.addTarget(self, action: #selector(heartButtonTapped), for: .touchUpInside)
         setupGradientLayer()
     }
-    
+
     private func setupGradientLayer() {
         gradientLayer.colors = [UIColor(hex: "#FFAF1E").cgColor, UIColor(hex: "#FFD56E").cgColor]
         gradientLayer.locations = [0.0, 1.0]
@@ -147,7 +147,7 @@ class highlightCell: UICollectionViewCell {
 
         gradientView.isHidden = true
         updateHeartButtonImage()
-        
+
         price.font = UIFont.boldSystemFont(ofSize: 16)
         name.font = UIFont(name: "HelveticaNeue", size: 16)
         name.numberOfLines = 0

@@ -106,10 +106,10 @@ class HighlightContainerCell: UITableViewCell, UICollectionViewDataSource, UICol
     // MARK: - UICollectionViewDelegateFlowLayout
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        
+
         return collectionView.frame.size
     }
-    
+
     // MARK: - Configure
 
     func configure(with products: [Product]){
