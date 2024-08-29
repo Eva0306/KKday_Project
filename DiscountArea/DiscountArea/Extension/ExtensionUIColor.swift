@@ -1,11 +1,5 @@
-//
-//  ExtensionUIColor.swift
-//  DiscountArea
-//
-//  Created by J oyce on 2024/8/26.
-//
 
-import Foundation
+
 import UIKit
 
 extension UIColor {
@@ -27,4 +21,3 @@ extension UIColor {
         self.init(red: CGFloat(r) / 255, green: CGFloat(g) / 255, blue: CGFloat(b) / 255, alpha: CGFloat(a) / 255)
     }
 }
-
