@@ -76,9 +76,9 @@ class HighlightContainerCell: UITableViewCell, UICollectionViewDataSource, UICol
         } else {
             let product = productData[indexPath.item]
             cell.imageView.loadImage(from: product.imgUrl)
-            cell.configure(labelTexts: [product.name, " 星等 \(product.ratingStar) \(product.ratingCount) | 6K+ 已訂購"])
+            cell.configure(labelTexts: [product.name, " 星等 \(product.ratingStar) (\(product.ratingCount)) | 6K+ 已訂購"])
 
-            if product.discount != 0 {
+            if product.discount > 0.01 && product.discount <= 0.99 {
                 cell.gradientView.isHidden = false
                 cell.discountLabel.text = " \(String(format: "%.0f", product.discount * 100))% OFF"
             }
@@ -106,17 +106,17 @@ class HighlightContainerCell: UITableViewCell, UICollectionViewDataSource, UICol
     // MARK: - UICollectionViewDelegateFlowLayout
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        
+
         return collectionView.frame.size
     }
-    
+
     // MARK: - Configure
 
     func configure(with products: [Product]){
         self.products = products
-        
-        productIdList.append(products.first?.productUrlId ?? "")
-        
+        if let firstProductUrlId = products.first?.productUrlId, !productIdList.contains(firstProductUrlId) {
+            productIdList.append(firstProductUrlId)
+        }
         self.httpRequestManager.fetchProductData(productList: productIdList)
     }
 }
@@ -127,7 +127,6 @@ extension HighlightContainerCell: HTTPRequestManagerDelegate {
     func manager(_ manager: HTTPRequestManager, didGet productData: ResponseProductData) {
         self.productData = productData.data
         print(">>>>>>>>>>>>>ProductData\n\(self.productData)")
-
     }
 
     func manager(_ manager: HTTPRequestManager, didGet pageData: ResponsePageData) {

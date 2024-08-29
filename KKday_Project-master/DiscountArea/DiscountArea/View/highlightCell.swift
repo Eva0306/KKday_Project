@@ -10,7 +10,7 @@ import UIKit
 class highlightCell: UICollectionViewCell {
 
     let imageView = UIImageView()
-    let heartImageView = UIImageView(image: UIImage(named: "wishNormal"))
+    let heartButton = UIButton()
 
     let gradientLayer = CAGradientLayer()
     let gradientView = UIView()
@@ -21,6 +21,7 @@ class highlightCell: UICollectionViewCell {
     let star = UILabel()
     let originPrice = UILabel()
     let price = UILabel()
+    private var isHeartSelected: Bool = false
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -34,7 +35,9 @@ class highlightCell: UICollectionViewCell {
     func setupViews() {
         imageView.layer.cornerRadius = 10
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        heartImageView.translatesAutoresizingMaskIntoConstraints = false
+        heartButton.setImage(UIImage(named: "ic-card-wish-normal"), for: .normal)
+        heartButton.translatesAutoresizingMaskIntoConstraints = false
+
         gradientView.translatesAutoresizingMaskIntoConstraints = false
         gradientView.layer.cornerRadius = 6
         gradientLayer.cornerRadius = 6
@@ -47,7 +50,7 @@ class highlightCell: UICollectionViewCell {
         price.translatesAutoresizingMaskIntoConstraints = false
 
         contentView.addSubview(imageView)
-        contentView.addSubview(heartImageView)
+        contentView.addSubview(heartButton)
         contentView.addSubview(gradientView)
         contentView.addSubview(discountLabel)
         contentView.addSubview(name)
@@ -69,10 +72,10 @@ class highlightCell: UICollectionViewCell {
             imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
             imageView.heightAnchor.constraint(equalToConstant: 190),
 
-            heartImageView.topAnchor.constraint(equalTo: imageView.topAnchor, constant: 10),
-            heartImageView.trailingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: -10),
-            heartImageView.widthAnchor.constraint(equalToConstant: 30),
-            heartImageView.heightAnchor.constraint(equalToConstant: 30),
+            heartButton.topAnchor.constraint(equalTo: imageView.topAnchor, constant: 10),
+            heartButton.trailingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: -10),
+            heartButton.widthAnchor.constraint(equalToConstant: 30),
+            heartButton.heightAnchor.constraint(equalToConstant: 30),
 
             gradientView.bottomAnchor.constraint(equalTo: imageView.bottomAnchor),
             gradientView.leadingAnchor.constraint(equalTo: imageView.leadingAnchor),
@@ -106,10 +109,10 @@ class highlightCell: UICollectionViewCell {
             price.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
             price.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24)
         ])
-
+        heartButton.addTarget(self, action: #selector(heartButtonTapped), for: .touchUpInside)
         setupGradientLayer()
     }
-    
+
     private func setupGradientLayer() {
         gradientLayer.colors = [UIColor(hex: "#FFAF1E").cgColor, UIColor(hex: "#FFD56E").cgColor]
         gradientLayer.locations = [0.0, 1.0]
@@ -133,6 +136,9 @@ class highlightCell: UICollectionViewCell {
         price.text = nil
         originPrice.text = nil
         originPrice.attributedText = nil
+
+        isHeartSelected = false
+        updateHeartButtonImage()
     }
 
     func configure(labelTexts: [String]) {
@@ -140,15 +146,26 @@ class highlightCell: UICollectionViewCell {
         star.text = labelTexts[1]
 
         gradientView.isHidden = true
-        
+        updateHeartButtonImage()
+
         price.font = UIFont.boldSystemFont(ofSize: 16)
         name.font = UIFont(name: "HelveticaNeue", size: 16)
         name.numberOfLines = 0
         star.font = UIFont(name: "HelveticaNeue", size: 16)
         discountLabel.textColor = .white
         discountLabel.font = UIFont(name: "HelveticaNeue", size: 16)
-        
+
         originPrice.textColor = .gray
         originPrice.font = UIFont(name: "HelveticaNeue", size: 16)
+    }
+
+    @objc private func heartButtonTapped() {
+        isHeartSelected.toggle()
+        updateHeartButtonImage()
+    }
+
+    private func updateHeartButtonImage() {
+        let imageName = isHeartSelected ? "wishActive" : "wishNormal"
+        heartButton.setImage(UIImage(named: imageName), for: .normal)
     }
 }
