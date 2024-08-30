@@ -15,7 +15,6 @@ class MerchantCouponContainerCell: UITableViewCell {
     var merchantCouponList: [MerchantCoupon] = [] {
         didSet {
             merchantCouponTableView.reloadData()
-
         }
     }
     

@@ -132,7 +132,9 @@ class GuideContainerCell: UITableViewCell, UICollectionViewDataSource, UICollect
     // MARK: - UICollectionViewDelegateFlowLayout
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+
         return CGSize(width: 320.0, height: collectionView.frame.height)
+
     }
 
     func configure(with guide: [Guide]){
@@ -159,12 +161,15 @@ class GuideContainerCell: UITableViewCell, UICollectionViewDataSource, UICollect
         pageControl.currentPage = nextItem
 
         let targetOffset = CGPoint(x: CGFloat(nextItem) * 320.0 , y: 0)
+
         if nextIndexPath.item == 0{
             collectionView.setContentOffset(targetOffset, animated: false)
         } else {
             collectionView.setContentOffset(targetOffset, animated: true)
         }
+
         currentIndex += 1
+
     }
 
     func stopAutoScrollTimer() {
