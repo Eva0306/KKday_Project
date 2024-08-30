@@ -13,6 +13,9 @@ xcuserdata/
 *.xcscmblueprint
 *.xccheckout
 
+iOSInjectionProject/
+.DS_Store
+
 ## compatibility with Xcode 3 and earlier (ignoring not required starting Xcode 4)
 build/
 DerivedData/
@@ -99,3 +102,4 @@ iOSInjectionProject/
 **/xcshareddata/WorkspaceSettings.xcsettings
 
 # End of https://www.toptal.com/developers/gitignore/api/swift,xcode
+DiscountArea/.DS_Store
