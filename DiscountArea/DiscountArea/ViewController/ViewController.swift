@@ -549,31 +549,33 @@ extension ViewController: UIScrollViewDelegate {
     }
     
     func updateSectionLabelStyles(selectedIndex: Int) {
-        for (index, label) in sectionLabels.enumerated() {
-            label.font = index == selectedIndex ? UIFont.boldSystemFont(ofSize: 16) : UIFont.systemFont(ofSize: 16)
-            label.textColor = index == selectedIndex ? .systemTeal : .black
+
+            for (index, label) in sectionLabels.enumerated() {
+                UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut], animations: {
+                    label.font = index == selectedIndex ? UIFont.boldSystemFont(ofSize: 16) : UIFont.systemFont(ofSize: 16)
+                    label.textColor = index == selectedIndex ? .systemTeal : .black
+                }, completion: nil)
+            }
+
+            let selectedLabel = sectionLabels[selectedIndex]
+            let labelFrameInScrollView = selectedLabel.convert(selectedLabel.bounds, to: scrollView)
+
+            let scrollViewWidth = scrollView.frame.width
+            let offsetX = labelFrameInScrollView.midX - scrollViewWidth / 2
+            let minOffsetX = 0.0
+            let maxOffsetX = scrollView.contentSize.width - scrollViewWidth
+            let targetOffsetX = max(minOffsetX, min(maxOffsetX, offsetX))
+
+            UIView.animate(withDuration: 0.1, delay: 0, options: [.curveEaseInOut], animations: {
+                self.scrollView.setContentOffset(CGPoint(x: targetOffsetX, y: 0), animated: false)
+            }, completion: nil)
+
+            UIView.animate(withDuration: 0.1, delay: 0, options: [.curveEaseInOut], animations: {
+                self.underlineLeadingConstraint?.constant = selectedLabel.frame.origin.x
+                self.underlineWidthConstraint?.constant = selectedLabel.intrinsicContentSize.width
+                self.view.layoutIfNeeded()
+            }, completion: nil)
         }
-        
-        let selectedLabel = sectionLabels[selectedIndex]
-        
-        let labelFrameInScrollView = selectedLabel.convert(selectedLabel.bounds, to: scrollView)
-        
-        let scrollViewWidth = scrollView.frame.width
-        let offsetX = labelFrameInScrollView.midX - scrollViewWidth / 2
-        
-        let minOffsetX = 0.0
-        let maxOffsetX = scrollView.contentSize.width - scrollViewWidth
-        let targetOffsetX = max(minOffsetX, min(maxOffsetX, offsetX))
-        
-        scrollView.setContentOffset(CGPoint(x: targetOffsetX, y: 0), animated: false)
-        
-        UIView.animate(withDuration: 0.1) {
-            self.underlineLeadingConstraint?.constant = selectedLabel.frame.origin.x
-            self.underlineWidthConstraint?.constant = selectedLabel.intrinsicContentSize.width
-            self.view.layoutIfNeeded()
-        }
-    }
-    
 }
 
 extension ViewController: PromoContainerCellDelegate {

@@ -1,5 +1,4 @@
 
-
 import UIKit
 
 enum PromoLayoutType {
@@ -51,7 +50,7 @@ class CollectionViewFactory {
     }
 
     func tabRowLayout() -> NSCollectionLayoutSection {
-        let itemWidth = NSCollectionLayoutDimension.estimated(200)
+        let itemWidth = NSCollectionLayoutDimension.estimated(500)
         let itemSize = NSCollectionLayoutSize(widthDimension: itemWidth, heightDimension: .fractionalHeight(1))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
@@ -63,6 +62,8 @@ class CollectionViewFactory {
         section.orthogonalScrollingBehavior = .continuous
         section.interGroupSpacing = 8
         section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 24, bottom: 0, trailing: 24)
+
+        
         
         return section
     }

@@ -45,8 +45,8 @@ class PromoContainerCell: UITableViewCell {
         
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
+            collectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
             collectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
         
@@ -97,6 +97,9 @@ class PromoContainerCell: UITableViewCell {
                 
                 httpRequestManager.fetchProductData(productList: tabProducts[selectedTabIndex].productIds)
                 
+                setupLeftGradientView()
+                setupRightGradientView()
+                
             } else {
                 self.productsId = configDetail.products?.map{ $0.productUrlId } ?? []
                 
@@ -106,9 +109,9 @@ class PromoContainerCell: UITableViewCell {
         }
         
         collectionView.reloadData()
+        
     }
 
-    
     func checkIfShouldDelete() {
         if products.isEmpty {
             delegate?.shouldDeleteTableViewCell(self)
@@ -184,17 +187,18 @@ extension PromoContainerCell: UICollectionViewDataSource {
 
 // MARK: - UICollectionViewDelegate
 extension PromoContainerCell: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        if layout == .tabGrid || layout == .tabRow {
-            if indexPath.section == 0 {
-                cell.alpha = 0
-                
-                UIView.animate(withDuration: 0.5, delay: 0.05, options: .curveEaseInOut, animations: {
-                    cell.alpha = 1
-                })
-            }
-        }
-    }
+//    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+//        if layout == .tabGrid || layout == .tabRow {
+//            if indexPath.section == 0 {
+//                cell.alpha = 0
+//                
+//                UIView.animate(withDuration: 0.5, delay: 0.05, options: .curveEaseInOut, animations: {
+//                    cell.alpha = 1
+//                })
+//            }
+//        }
+//    }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if layout == .tabGrid || layout == .tabRow {
             if indexPath.section == 0 {
@@ -216,5 +220,63 @@ extension PromoContainerCell: UICollectionViewDelegate {
             let openUrl = "https://www.kkday.com/zh-tw/product/\(productId)"
             open(urlString: openUrl)
         }
+    }
+}
+
+extension PromoContainerCell {
+    func setupLeftGradientView() {
+        let view = UIView()
+        let layer0 = CAGradientLayer()
+        
+        layer0.colors = [UIColor(red: 1, green: 1, blue: 1, alpha: 1).cgColor, UIColor(red: 1, green: 1, blue: 1, alpha: 0).cgColor]
+        layer0.locations = [0.35, 1.0]
+        layer0.startPoint = CGPoint(x: 0, y: 0.5)
+        layer0.endPoint = CGPoint(x: 1, y: 0.5)
+        
+        layer0.frame = view.bounds
+        view.layer.insertSublayer(layer0, at: 0)
+        
+        contentView.addSubview(view)
+        
+        view.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            view.topAnchor.constraint(equalTo: contentView.topAnchor),
+            view.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            view.widthAnchor.constraint(equalToConstant: 50),
+            view.heightAnchor.constraint(equalToConstant: 32)
+        ])
+        
+        contentView.bringSubviewToFront(view)
+        view.layoutIfNeeded()
+        layer0.frame = view.bounds
+    }
+    
+    func setupRightGradientView() {
+        let view = UIView()
+        let layer0 = CAGradientLayer()
+          
+        layer0.colors = [UIColor(red: 1, green: 1, blue: 1, alpha: 1).cgColor, UIColor(red: 1, green: 1, blue: 1, alpha: 0).cgColor]
+        layer0.locations = [0.35, 1.0]
+        layer0.startPoint = CGPoint(x: 1, y: 0.5)
+        layer0.endPoint = CGPoint(x: 0, y: 0.5)
+        
+        layer0.frame = view.bounds
+        view.layer.insertSublayer(layer0, at: 0)
+        
+        contentView.addSubview(view)
+        
+        view.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            view.topAnchor.constraint(equalTo: contentView.topAnchor),
+            view.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            view.widthAnchor.constraint(equalToConstant: 50),
+            view.heightAnchor.constraint(equalToConstant: 32)
+        ])
+        
+        contentView.bringSubviewToFront(view)
+        view.layoutIfNeeded()
+        layer0.frame = view.bounds
     }
 }

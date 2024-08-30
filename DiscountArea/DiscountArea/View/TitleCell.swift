@@ -16,6 +16,7 @@ class TitleCell: UITableViewCell {
         label.textAlignment = .left
         label.font = UIFont(name: "HelveticaNeue", size: 22)
         label.textColor = .black
+        label.numberOfLines = 1
         return label
     }()
     
@@ -24,6 +25,7 @@ class TitleCell: UITableViewCell {
         label.textAlignment = .left
         label.font = UIFont(name: "HelveticaNeue", size: 16)
         label.textColor = UIColor(hex: "727272")
+        label.numberOfLines = 2
         return label
     }()
     
@@ -49,15 +51,15 @@ class TitleCell: UITableViewCell {
         
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
+            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24)
         ])
         
         if let subtitleLabel = subtitleLabel {
             NSLayoutConstraint.activate([
                 subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
-                subtitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-                subtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+                subtitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
+                subtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
                 subtitleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24)
             ])
         } else {
