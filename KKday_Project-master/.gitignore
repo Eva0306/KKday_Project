@@ -1,6 +1,5 @@
 # Created by https://www.toptal.com/developers/gitignore/api/swift,xcode
 # Edit at https://www.toptal.com/developers/gitignore?templates=swift,xcode
-.DS_Store
 
 ### Swift ###
 # Xcode
@@ -10,12 +9,12 @@
 ## User settings
 xcuserdata/
 
+iOSInjectionProject/
+.DS_Store
+
 ## compatibility with Xcode 8 and earlier (ignoring not required starting Xcode 9)
 *.xcscmblueprint
 *.xccheckout
-
-iOSInjectionProject/
-.DS_Store
 
 ## compatibility with Xcode 3 and earlier (ignoring not required starting Xcode 4)
 build/
@@ -37,6 +36,9 @@ DerivedData/
 *.ipa
 *.dSYM.zip
 *.dSYM
+
+iOSInjectionProject/
+.DS_Store
 
 ## Playgrounds
 timeline.xctimeline

@@ -118,6 +118,7 @@ class ShowMoreCell: UITableViewCell {
         contentView.addSubview(showMoreButton)
         
         NSLayoutConstraint.activate([
+
             showMoreButton.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
             //showMoreButton.heightAnchor.constraint(equalToConstant: 48),
             showMoreButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),

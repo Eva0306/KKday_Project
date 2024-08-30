@@ -24,6 +24,7 @@ class guideCell: UICollectionViewCell {
     func setupViews() {
         imageView.layer.cornerRadius = 10
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        
         videoPlayIcon.setImage(UIImage(named: "Group_1"), for: .normal)
         videoPlayIcon.translatesAutoresizingMaskIntoConstraints = false
         videoPlayIcon.isHidden = true
@@ -38,6 +39,7 @@ class guideCell: UICollectionViewCell {
             imageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
             imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
             imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
+
             imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24),
             imageView.heightAnchor.constraint(equalToConstant: 204),
 
@@ -53,7 +55,7 @@ class guideCell: UICollectionViewCell {
         super.prepareForReuse()
         imageView.image = UIImage(named: "placeHolder")
         imageView.layer.cornerRadius = 10
-
         videoPlayIcon.isHidden = true
+
     }
 }
