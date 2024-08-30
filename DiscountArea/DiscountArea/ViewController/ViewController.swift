@@ -475,6 +475,8 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
                     cell.configure(with: coupons)
                 }
                 
+                cell.selectionStyle = .none
+                
                 cell.delegate = self
             
             return cell
@@ -483,6 +485,9 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
             let cell = tableView.dequeueReusableCell(withIdentifier: "NoticeTableViewCell", for: indexPath) as! NoticeTableViewCell
             
             cell.configure(with: config.detail)
+            
+            cell.selectionStyle = .none
+            
             return cell
         }
         

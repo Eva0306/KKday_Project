@@ -68,6 +68,8 @@ extension CouponContainerCell: UITableViewDataSource, UITableViewDelegate {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CouponTableViewCell", for: indexPath) as! CouponTableViewCell
         let coupon = couponList[indexPath.row]
         
+        cell.selectionStyle = .none
+        
         cell.redeemAction = { [weak self] in
             self?.delegate?.didSelectCoupon()
         }
