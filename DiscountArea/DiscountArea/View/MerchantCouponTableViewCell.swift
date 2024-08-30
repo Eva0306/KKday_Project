@@ -123,6 +123,7 @@ class ShowMoreCell: UITableViewCell {
             showMoreButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),
             showMoreButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             showMoreButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+
         ])
     }
     

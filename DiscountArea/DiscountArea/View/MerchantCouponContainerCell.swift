@@ -15,6 +15,7 @@ class MerchantCouponContainerCell: UITableViewCell {
     var merchantCouponList: [MerchantCoupon] = [] {
         didSet {
             merchantCouponTableView.reloadData()
+
         }
     }
     
@@ -53,11 +54,12 @@ class MerchantCouponContainerCell: UITableViewCell {
     override func systemLayoutSizeFitting(_ targetSize: CGSize, withHorizontalFittingPriority horizontalFittingPriority: UILayoutPriority, verticalFittingPriority: UILayoutPriority) -> CGSize {
         
         merchantCouponTableView.layoutIfNeeded()
+
         self.invalidateIntrinsicContentSize()
         
         let tableViewHeight = merchantCouponTableView.contentSize.height
         print(">>>>>>>>>>>>>>>>>>\n", tableViewHeight)
-        
+
         return CGSize(width: targetSize.width, height: tableViewHeight)
 
     }
@@ -69,7 +71,7 @@ class MerchantCouponContainerCell: UITableViewCell {
 
 //MARK: - Merchant Coupon TableView DataSource
 extension MerchantCouponContainerCell: UITableViewDataSource {
-    
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if !merchantCouponisExpanded && indexPath.row == 5 {
             return 88

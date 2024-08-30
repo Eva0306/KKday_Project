@@ -48,14 +48,15 @@ class GuideContainerCell: UITableViewCell, UICollectionViewDataSource, UICollect
 
     func setupBackground() {
         backgroundImageView.image = UIImage(named: "guide_background")
-        backgroundImageView.contentMode = .scaleAspectFill
+        backgroundImageView.contentMode = .scaleToFill
         backgroundImageView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(backgroundImageView)
         NSLayoutConstraint.activate([
             backgroundImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
             backgroundImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             backgroundImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            backgroundImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+            backgroundImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            backgroundImageView.heightAnchor.constraint(equalToConstant: 280)
         ])
     }
 
@@ -74,11 +75,12 @@ class GuideContainerCell: UITableViewCell, UICollectionViewDataSource, UICollect
         contentView.addSubview(guideCollectionView)
 
         guideCollectionView.translatesAutoresizingMaskIntoConstraints = false
+
         NSLayoutConstraint.activate([
             guideCollectionView.heightAnchor.constraint(equalToConstant: 252),
-            guideCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            guideCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            guideCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+            guideCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
+            guideCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
+            guideCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
         ])
     }
 
@@ -92,8 +94,16 @@ class GuideContainerCell: UITableViewCell, UICollectionViewDataSource, UICollect
         NSLayoutConstraint.activate([
             pageControl.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             pageControl.heightAnchor.constraint(equalToConstant: 20),
-            pageControl.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5)
+            pageControl.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10)
         ])
+        pageControl.addTarget(self, action: #selector(pageControlChanged(_:)), for: .valueChanged)
+        pageControl.currentPage = 0
+    }
+
+    @objc func pageControlChanged(_ sender: UIPageControl) {
+        let currentPage = sender.currentPage
+        let offset = CGFloat(currentPage) * 320.0
+        guideCollectionView.setContentOffset(CGPoint(x: offset, y: 0), animated: true)
     }
 
     // MARK: - UICollectionViewDataSource
@@ -106,8 +116,11 @@ class GuideContainerCell: UITableViewCell, UICollectionViewDataSource, UICollect
         let cell = guideCollectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! guideCell
         let guide = guideList[indexPath.item]
         cell.imageView.loadImage(from: guide.imageUrl)
-        cell.backgroundColor = .clear
-        cell.heartImageView.isHidden = true
+
+        if guide.isShowVideoPlayIcon == true{
+            cell.videoPlayIcon.isHidden = false
+        }
+
         return cell
     }
 
@@ -119,7 +132,7 @@ class GuideContainerCell: UITableViewCell, UICollectionViewDataSource, UICollect
     // MARK: - UICollectionViewDelegateFlowLayout
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return collectionView.frame.size
+        return CGSize(width: 320.0, height: collectionView.frame.height)
     }
 
     func configure(with guide: [Guide]){
@@ -127,31 +140,31 @@ class GuideContainerCell: UITableViewCell, UICollectionViewDataSource, UICollect
     }
 
     func startAutoScrollTimer() {
+        guideCollectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: false)
+        currentIndex = 0
+        pageControl.currentPage = 0
+
         timer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(autoScroll), userInfo: nil, repeats: true)
-        print("Auto-scroll timer started.")
     }
 
     @objc func autoScroll() {
+        
         guard let collectionView = guideCollectionView else { return }
 
-        collectionView.layoutIfNeeded()
-
         let totalItems = guideList.count
-        let itemWidth = 320.0
-        let currentOffset = collectionView.contentOffset.x
-        let currentIndex = Int(round(currentOffset / itemWidth))
 
         let nextItem = (currentIndex + 1) % totalItems
 
         let nextIndexPath = IndexPath(item: nextItem, section: 0)
         pageControl.currentPage = nextItem
 
-        let targetOffset = CGPoint(x: CGFloat(nextItem) * itemWidth , y: 0)
+        let targetOffset = CGPoint(x: CGFloat(nextItem) * 320.0 , y: 0)
         if nextIndexPath.item == 0{
             collectionView.setContentOffset(targetOffset, animated: false)
         } else {
             collectionView.setContentOffset(targetOffset, animated: true)
         }
+        currentIndex += 1
     }
 
     func stopAutoScrollTimer() {
