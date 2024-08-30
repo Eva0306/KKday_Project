@@ -323,6 +323,9 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
             self.configList = selectedCountry.config
             dropdownButton.setTitle(selectedCountry.name, for: .normal)
             populateSections(from: selectedCountry.config)
+            scrollView.setContentOffset(.zero, animated: true)
+            tableView.layoutIfNeeded()
+            tableView.setContentOffset(.zero, animated: true)
         }
     }
     
@@ -476,13 +479,17 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
                 }
                 
                 cell.delegate = self
+                
+                cell.selectionStyle = .none
             
             return cell
             
         } else if config.type == "DESCRIPTION" {
             let cell = tableView.dequeueReusableCell(withIdentifier: "NoticeTableViewCell", for: indexPath) as! NoticeTableViewCell
             
+            cell.selectionStyle = .none
             cell.configure(with: config.detail)
+            
             return cell
         }
         
@@ -608,6 +615,9 @@ extension ViewController {
         popupView.layer.masksToBounds = true
         popupView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(popupView)
+        
+        let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        popupView.addGestureRecognizer(panGestureRecognizer)
         
         let handleView = UIView()
         handleView.backgroundColor = .lightGray
