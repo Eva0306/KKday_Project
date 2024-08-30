@@ -129,6 +129,7 @@
 				B3EE256B2C77447F006B24A4 /* LaunchScreen.storyboard */,
 				B3EE256E2C77447F006B24A4 /* Info.plist */,
 				3C64C6952C81722E0081F2AC /* WishList.xcdatamodeld */,
+				1CC057B42C7F10FD00E6BBF5 /* RadioButtonController.swift */,
 			);
 			path = DiscountArea;
 			sourceTree = "<group>";
@@ -145,7 +146,6 @@
 			isa = PBXGroup;
 			children = (
 				B3EE257A2C788110006B24A4 /* MerchantCouponTableViewCell.swift */,
-				B3EE258D2C7D74D6006B24A4 /* MerchantCouponContainerCell.swift */,
 				B3EE25872C7D72FA006B24A4 /* CollectionViewFactory.swift */,
 				B3EE25892C7D732C006B24A4 /* PromoCollectionViewCell.swift */,
 				B3EE25912C7D8036006B24A4 /* PromoContainerCell.swift */,
@@ -156,7 +156,6 @@
 				1CC057B22C7F10E400E6BBF5 /* NoticeTableViewCell.swift */,
 				1CC057BA2C7F111B00E6BBF5 /* CountrySelectorView.swift */,
 				1CC057BC2C7F113F00E6BBF5 /* RadioButtonTableViewCell.swift */,
-				1CC057B42C7F10FD00E6BBF5 /* RadioButtonController.swift */,
 				B3EE25972C7F64C9006B24A4 /* highlightCell.swift */,
 				B3EE259B2C7F6500006B24A4 /* HighlightContainerCell.swift */,
 				3C64C6822C7F156A0081F2AC /* TitleCell.swift */,
@@ -186,6 +185,7 @@
 		B3EE25862C7D72D4006B24A4 /* Extension */ = {
 			isa = PBXGroup;
 			children = (
+				B3EE258D2C7D74D6006B24A4 /* MerchantCouponContainerCell.swift */,
 				B3EE257E2C7B2DFD006B24A4 /* ExtensionUIImageView.swift */,
 				B3EE257C2C78878D006B24A4 /* ExtensionUIColor.swift */,
 				B3EE258B2C7D7340006B24A4 /* ExtensionString.swift */,
