@@ -12,7 +12,6 @@ class guideCell: UICollectionViewCell {
     let imageView = UIImageView()
     let videoPlayIcon = UIButton()
 
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()
@@ -46,6 +45,7 @@ class guideCell: UICollectionViewCell {
             videoPlayIcon.heightAnchor.constraint(equalToConstant: 32),
             videoPlayIcon.leadingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: 12),
             videoPlayIcon.topAnchor.constraint(equalTo: imageView.topAnchor, constant: 12)
+
         ])
     }
 
@@ -53,7 +53,7 @@ class guideCell: UICollectionViewCell {
         super.prepareForReuse()
         imageView.image = UIImage(named: "placeHolder")
         imageView.layer.cornerRadius = 10
-        videoPlayIcon.isHidden = true
 
+        videoPlayIcon.isHidden = true
     }
 }

@@ -34,6 +34,7 @@ class GuideContainerCell: UITableViewCell, UICollectionViewDataSource, UICollect
         setupBackground()
         setUpGuideCollectionView()
         setupPageControl()
+        startAutoScrollTimer()
     }
 
     required init?(coder: NSCoder) {
@@ -50,7 +51,6 @@ class GuideContainerCell: UITableViewCell, UICollectionViewDataSource, UICollect
         backgroundImageView.contentMode = .scaleToFill
         backgroundImageView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(backgroundImageView)
-
         NSLayoutConstraint.activate([
             backgroundImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
             backgroundImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),

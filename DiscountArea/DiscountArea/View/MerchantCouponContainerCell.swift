@@ -15,7 +15,7 @@ class MerchantCouponContainerCell: UITableViewCell {
     var merchantCouponList: [MerchantCoupon] = [] {
         didSet {
             merchantCouponTableView.reloadData()
-            self.invalidateIntrinsicContentSize()
+
         }
     }
     
@@ -44,7 +44,6 @@ class MerchantCouponContainerCell: UITableViewCell {
         merchantCouponTableView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            
             merchantCouponTableView.topAnchor.constraint(equalTo: contentView.topAnchor),
             merchantCouponTableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             merchantCouponTableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
@@ -55,8 +54,12 @@ class MerchantCouponContainerCell: UITableViewCell {
     override func systemLayoutSizeFitting(_ targetSize: CGSize, withHorizontalFittingPriority horizontalFittingPriority: UILayoutPriority, verticalFittingPriority: UILayoutPriority) -> CGSize {
         
         merchantCouponTableView.layoutIfNeeded()
-        let tableViewHeight = merchantCouponTableView.contentSize.height
+
+        self.invalidateIntrinsicContentSize()
         
+        let tableViewHeight = merchantCouponTableView.contentSize.height
+        print(">>>>>>>>>>>>>>>>>>\n", tableViewHeight)
+
         return CGSize(width: targetSize.width, height: tableViewHeight)
 
     }
@@ -68,9 +71,21 @@ class MerchantCouponContainerCell: UITableViewCell {
 
 //MARK: - Merchant Coupon TableView DataSource
 extension MerchantCouponContainerCell: UITableViewDataSource {
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        if !merchantCouponisExpanded && indexPath.row == 5 {
+            return 88
+        } else {
+            return UITableView.automaticDimension
+        }
+    }
     
     func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 500
+        if !merchantCouponisExpanded && indexPath.row == 5 {
+            return 88
+        } else {
+            return UITableView.automaticDimension
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -107,13 +122,19 @@ extension MerchantCouponContainerCell: UITableViewDataSource {
     @objc func showMoreTapped() {
         merchantCouponisExpanded = true
         merchantCouponTableView.reloadData()
-
-        print(merchantCouponTableView.contentSize.height)
-        if let tableView = self.superview as? UITableView {
-            tableView.beginUpdates()
-            tableView.endUpdates()
+        
+        DispatchQueue.main.async {
+            
+            self.invalidateIntrinsicContentSize()
+            print(self.merchantCouponTableView.contentSize.height)
+            
+            if let tableView = self.superview as? UITableView {
+                tableView.performBatchUpdates({
+                    tableView.beginUpdates()
+                    tableView.endUpdates()
+                }, completion: nil)
+            }
         }
-
     }
 }
 
