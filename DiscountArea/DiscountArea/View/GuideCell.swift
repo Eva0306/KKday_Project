@@ -10,7 +10,8 @@ import UIKit
 class guideCell: UICollectionViewCell {
 
     let imageView = UIImageView()
-    let heartImageView = UIImageView(image: UIImage(named: "ic-card-wish-normal"))
+    let videoPlayIcon = UIButton()
+
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -24,10 +25,12 @@ class guideCell: UICollectionViewCell {
     func setupViews() {
         imageView.layer.cornerRadius = 10
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        heartImageView.translatesAutoresizingMaskIntoConstraints = false
+        videoPlayIcon.setImage(UIImage(named: "Group_1"), for: .normal)
+        videoPlayIcon.translatesAutoresizingMaskIntoConstraints = false
+        videoPlayIcon.isHidden = true
 
         contentView.addSubview(imageView)
-        contentView.addSubview(heartImageView)
+        contentView.addSubview(videoPlayIcon)
 
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
@@ -36,14 +39,13 @@ class guideCell: UICollectionViewCell {
             imageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
             imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
             imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
-            //imageView.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.3),
             imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24),
             imageView.heightAnchor.constraint(equalToConstant: 204),
 
-            heartImageView.topAnchor.constraint(equalTo: imageView.topAnchor, constant: 10),
-            heartImageView.trailingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: -10),
-            heartImageView.widthAnchor.constraint(equalToConstant: 30),
-            heartImageView.heightAnchor.constraint(equalToConstant: 30)
+            videoPlayIcon.widthAnchor.constraint(equalToConstant: 32),
+            videoPlayIcon.heightAnchor.constraint(equalToConstant: 32),
+            videoPlayIcon.leadingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: 12),
+            videoPlayIcon.topAnchor.constraint(equalTo: imageView.topAnchor, constant: 12)
         ])
     }
 
@@ -51,5 +53,7 @@ class guideCell: UICollectionViewCell {
         super.prepareForReuse()
         imageView.image = UIImage(named: "placeHolder")
         imageView.layer.cornerRadius = 10
+        videoPlayIcon.isHidden = true
+
     }
 }

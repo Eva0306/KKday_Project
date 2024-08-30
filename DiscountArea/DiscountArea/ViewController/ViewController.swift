@@ -75,8 +75,8 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
         
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: sectionHeaderView.bottomAnchor, constant: 16),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 12),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -12),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
@@ -475,6 +475,19 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
         }
     }
 
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+
+        if let guideContainerCell = cell as? GuideContainerCell {
+            guideContainerCell.startAutoScrollTimer()
+        }
+    }
+
+    func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+
+        if let guideContainerCell = cell as? GuideContainerCell {
+            guideContainerCell.stopAutoScrollTimer()
+        }
+    }
 }
 
 //MARK: - Merchant Coupon Container Cell Delegate
