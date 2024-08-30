@@ -382,7 +382,7 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 500
+        return 800
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -410,7 +410,7 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
                 
                 if let merchantCoupons = config.detail.merchantCoupons {
                     cell.configure(with: merchantCoupons)
-                    cell.merchantCouponisExpanded = false
+                    
                 } else {
                     print("沒有商家優惠券")
                 }
