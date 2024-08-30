@@ -78,8 +78,8 @@ class GuideContainerCell: UITableViewCell, UICollectionViewDataSource, UICollect
 
         NSLayoutConstraint.activate([
             guideCollectionView.heightAnchor.constraint(equalToConstant: 252),
-            guideCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
-            guideCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
+            guideCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            guideCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             guideCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
         ])
     }

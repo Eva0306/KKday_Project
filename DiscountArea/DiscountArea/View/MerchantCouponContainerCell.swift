@@ -44,8 +44,8 @@ class MerchantCouponContainerCell: UITableViewCell {
         
         NSLayoutConstraint.activate([
             merchantCouponTableView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            merchantCouponTableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
-            merchantCouponTableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
+            merchantCouponTableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
+            merchantCouponTableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
             merchantCouponTableView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
     }
