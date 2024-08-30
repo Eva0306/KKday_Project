@@ -52,7 +52,7 @@ struct Detail: Codable {
     let endTime: String?
     let subtitle: String?
     let startTime: String?
-    let products: [Product]?
+    var products: [Product]?
     let merchantCoupons: [MerchantCoupon]?
     let coupons: [Coupon]?
     let guides: [Guide]?

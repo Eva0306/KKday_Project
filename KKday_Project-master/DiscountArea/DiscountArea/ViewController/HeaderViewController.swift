@@ -218,6 +218,9 @@ class HeaderViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     @objc func showCountrySelector() {
+        
+        addDarkOverlay()
+        
         if countrySelectorView == nil {
             countrySelectorView = CountrySelectorView(frame: CGRect(x: 0, y: view.frame.height, width: view.frame.width, height: 500))
             countrySelectorView?.delegate = self
@@ -260,6 +263,7 @@ class HeaderViewController: UIViewController, UITableViewDataSource, UITableView
         }) { _ in
             self.countrySelectorView?.removeFromSuperview()
             self.countrySelectorView = nil
+            self.removeDarkOverlay()
         }
     }
     
@@ -313,6 +317,19 @@ class HeaderViewController: UIViewController, UITableViewDataSource, UITableView
         tableView.reloadData()
     }
     
+    func addDarkOverlay() {
+        let overlayView = UIView(frame: self.view.bounds)
+        overlayView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        overlayView.tag = 100
+        overlayView.isUserInteractionEnabled = true
+        self.view.addSubview(overlayView)
+    }
+    
+    func removeDarkOverlay() {
+        if let overlayView = self.view.viewWithTag(100) {
+            overlayView.removeFromSuperview()
+        }
+    }
     // MARK: - HTTPRequestManagerDelegate (Specific Methods)
     
     func manager(_ manager: HTTPRequestManager, didGet pageData: ResponsePageData) {
