@@ -207,15 +207,15 @@ extension PromoContainerCell: UICollectionViewDelegate {
                 httpRequestManager.fetchProductData(productList: tabProducts[indexPath.item].productIds)
                 
             } else {
-                // 跳出打開safari導到網頁
+                
                 let productId = tabProducts[selectedTabIndex].productIds[indexPath.item]
-                print(">>>> \(productId)")
+                
                 let openUrl = "https://www.kkday.com/zh-tw/product/\(productId)"
                 open(urlString: openUrl)
             }
             
         } else {
-            // 跳出打開safari導到網頁
+            
             let productId = products[indexPath.item].id
             let openUrl = "https://www.kkday.com/zh-tw/product/\(productId)"
             open(urlString: openUrl)

@@ -29,7 +29,6 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
     
     var configList: [Config] = [] {
         didSet {
-            print(">>>>>>>>>\n", configList)
             tableView.reloadData()
         }
     }
@@ -323,6 +322,8 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
             self.configList = selectedCountry.config
             dropdownButton.setTitle(selectedCountry.name, for: .normal)
             populateSections(from: selectedCountry.config)
+            tableView.layoutIfNeeded()
+            tableView.setContentOffset(.zero, animated: true)
         }
     }
     
@@ -398,7 +399,7 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 2 // Assuming each section has two rows: one for the title and one for the content
+        return 2
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -613,6 +614,9 @@ extension ViewController {
         popupView.layer.masksToBounds = true
         popupView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(popupView)
+        
+        let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        popupView.addGestureRecognizer(panGestureRecognizer)
         
         let handleView = UIView()
         handleView.backgroundColor = .lightGray

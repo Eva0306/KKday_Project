@@ -57,7 +57,6 @@ class MerchantCouponContainerCell: UITableViewCell {
         self.invalidateIntrinsicContentSize()
         
         let tableViewHeight = merchantCouponTableView.contentSize.height
-        print(">>>>>>>>>>>>>>>>>>\n", tableViewHeight)
 
         return CGSize(width: targetSize.width, height: tableViewHeight)
 
@@ -125,7 +124,6 @@ extension MerchantCouponContainerCell: UITableViewDataSource {
         DispatchQueue.main.async {
             
             self.invalidateIntrinsicContentSize()
-            print(self.merchantCouponTableView.contentSize.height)
             
             if let tableView = self.superview as? UITableView {
                 tableView.performBatchUpdates({

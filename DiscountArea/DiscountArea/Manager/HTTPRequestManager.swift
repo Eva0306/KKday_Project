@@ -40,12 +40,10 @@ class HTTPRequestManager {
                     let pageData = try decoder.decode(ResponsePageData.self, from: data)
                     DispatchQueue.main.async {
                         self.delegate?.manager(self, didGet: pageData)
-                        //print("========\n\(pageData)\n=======")
                     }
                 } catch {
                     DispatchQueue.main.async {
                         self.delegate?.manager(self, didFailWith: error)
-                        //print("Decoding error: \(error)")
                     }
                 }
             }
