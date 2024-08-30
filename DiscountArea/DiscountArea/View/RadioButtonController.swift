@@ -7,6 +7,7 @@ protocol RadioButtonControllerDelegate {
 }
 
 class RadioButtonController: NSObject {
+    
     var buttonArray = [RadioButton]()
     var canDeSelect:Bool = false
     var name:String = ""
