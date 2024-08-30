@@ -34,7 +34,6 @@ class GuideContainerCell: UITableViewCell, UICollectionViewDataSource, UICollect
         setupBackground()
         setUpGuideCollectionView()
         setupPageControl()
-        startAutoScrollTimer()
     }
 
     required init?(coder: NSCoder) {
