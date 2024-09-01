@@ -151,6 +151,7 @@ class CountrySelectorView: UIView, UITableViewDelegate, UITableViewDataSource, R
         let isSelected = country.name == selectedCountry?.name
         cell.configure(with: country.name, selected: isSelected)
         
+        cell.selectionStyle = .none
         radioButtonController?.addButton(cell.radioButton)
         
         return cell

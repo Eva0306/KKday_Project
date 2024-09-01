@@ -115,6 +115,7 @@ class HighlightContainerCell: UITableViewCell, UICollectionViewDataSource, UICol
     func configure(with products: [Product]){
         self.products = products
         if let firstProductUrlId = products.first?.productUrlId, !productIdList.contains(firstProductUrlId) {
+            productIdList = []
             productIdList.append(firstProductUrlId)
         }
         self.httpRequestManager.fetchProductData(productList: productIdList)
@@ -126,7 +127,6 @@ class HighlightContainerCell: UITableViewCell, UICollectionViewDataSource, UICol
 extension HighlightContainerCell: HTTPRequestManagerDelegate {
     func manager(_ manager: HTTPRequestManager, didGet productData: ResponseProductData) {
         self.productData = productData.data
-        print(">>>>>>>>>>>>>ProductData\n\(self.productData)")
     }
 
     func manager(_ manager: HTTPRequestManager, didGet pageData: ResponsePageData) {

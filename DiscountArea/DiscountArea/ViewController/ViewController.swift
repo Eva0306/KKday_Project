@@ -3,7 +3,6 @@
 import UIKit
 
 class ViewController: UIViewController, CountrySelectorViewDelegate {
-
     
     var httpRequestManager = HTTPRequestManager()
     var tableView = UITableView()
@@ -17,6 +16,7 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
     var countries: [Category] = []
     var sectionTitles: [String] = []
     var sectionLabels: [UILabel] = []
+    var scrollView: UIScrollView!
     var underlineView: UIView?
     var underlineLeadingConstraint: NSLayoutConstraint?
     var underlineWidthConstraint: NSLayoutConstraint?
@@ -29,7 +29,6 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
     
     var configList: [Config] = [] {
         didSet {
-            print(">>>>>>>>>\n", configList)
             tableView.reloadData()
         }
     }
@@ -75,8 +74,8 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
         
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: sectionHeaderView.bottomAnchor, constant: 16),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 12),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -12),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
@@ -170,27 +169,28 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
     }
     
     func setupSectionLabels() {
-
+        
         sectionLabels.forEach { $0.removeFromSuperview() }
         sectionLabels.removeAll()
         underlineView?.removeFromSuperview()
         
-        let scrollView = UIScrollView()
+        scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.bounces = true
         sectionHeaderView.addSubview(scrollView)
         
         NSLayoutConstraint.activate([
-            scrollView.leadingAnchor.constraint(equalTo: sectionHeaderView.leadingAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: sectionHeaderView.leadingAnchor, constant: 16),
             scrollView.trailingAnchor.constraint(equalTo: sectionHeaderView.trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: sectionHeaderView.topAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: sectionHeaderView.bottomAnchor)
+            scrollView.bottomAnchor.constraint(equalTo: sectionHeaderView.bottomAnchor),
+            scrollView.contentLayoutGuide.heightAnchor.constraint(equalToConstant: 40)
         ])
         
         let underlineView = UIView()
         underlineView.translatesAutoresizingMaskIntoConstraints = false
-        underlineView.backgroundColor = .systemTeal.withAlphaComponent(0.5)
+        underlineView.backgroundColor = .systemTeal
         scrollView.addSubview(underlineView)
         self.underlineView = underlineView
         
@@ -222,52 +222,41 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
                 ])
             } else {
                 NSLayoutConstraint.activate([
-                    label.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 16)
+                    label.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor)
                 ])
                 
                 underlineLeadingConstraint = underlineView.leadingAnchor.constraint(equalTo: label.leadingAnchor)
-                underlineWidthConstraint = underlineView.widthAnchor.constraint(equalTo: label.widthAnchor)
-                underlineLeadingConstraint?.isActive = true
-                underlineWidthConstraint?.isActive = true
+                underlineWidthConstraint = underlineView.widthAnchor.constraint(equalToConstant: label.intrinsicContentSize.width)
             }
             
             previousLabel = label
         }
         
-        previousLabel?.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -16).isActive = true
-        underlineView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
-        underlineView.heightAnchor.constraint(equalToConstant: 2).isActive = true
+        if let underlineLeadingConstraint = underlineLeadingConstraint,
+           let underlineWidthConstraint = underlineWidthConstraint {
+            NSLayoutConstraint.activate([
+                underlineLeadingConstraint,
+                underlineWidthConstraint,
+                underlineView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+                underlineView.heightAnchor.constraint(equalToConstant: 2)
+            ])
+        }
         
-        print("ScrollView Content Size: \(scrollView.contentSize)")
-        print("Underline View Frame: \(underlineView.frame)")
+        previousLabel?.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -16).isActive = true
+        
+        view.layoutIfNeeded()
     }
     
     @objc func sectionLabelTapped(_ sender: UITapGestureRecognizer) {
         if let label = sender.view as? UILabel, let index = sectionLabels.firstIndex(of: label) {
-            guard index < tableView.numberOfSections else {
+
+            guard index < configList.count else {
+
                 print("Attempted to scroll to an out-of-bounds section: \(index)")
                 return
             }
             
-            let rowCount = tableView.numberOfRows(inSection: index)
-            guard rowCount > 0 else {
-                print("No rows in section \(index). Cannot scroll.")
-                return
-            }
-            
-            for (i, lbl) in sectionLabels.enumerated() {
-                lbl.font = i == index ? UIFont.boldSystemFont(ofSize: 16) : UIFont.systemFont(ofSize: 16)
-                lbl.textColor = i == index ? .systemTeal : .black
-            }
-            
-            if let underlineView = underlineView {
-                UIView.animate(withDuration: 0.3) {
-                    underlineView.frame.origin.x = label.frame.origin.x
-                    underlineView.frame.size.width = label.intrinsicContentSize.width
-                }
-            } else {
-                print("underlineView is nil")
-            }
+            updateSectionLabelStyles(selectedIndex: index)
             
             let indexPath = IndexPath(row: 0, section: index)
             tableView.scrollToRow(at: indexPath, at: .top, animated: true)
@@ -275,33 +264,41 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
     }
 
     func populateSections(from configs: [Config]) {
-        // Directly assign the configs to configList
-        configList = configs.filter { config in
-            switch config.type {
-            case "MERCHANT_COUPON":
-                return config.detail.merchantCoupons != nil
-            case "PRODUCT":
-                return config.detail.layout != nil
-            case "GUIDE":
-                return config.detail.guides != nil
-            case "COUPON":
-                return config.detail.coupons != nil
-            case "DESCRIPTION":
-                return config.detail.title != nil
-            default:
-                return false
+        
+        var mergedConfigs: [String: Config] = [:]
+        var configOrder: [String] = []
+        
+        for config in configs {
+            guard let title = config.detail.title else { continue }
+            
+            if var existingConfig = mergedConfigs[title] {
+                if let newProducts = config.detail.products {
+                    var mutableDetail = existingConfig.detail
+                    var updatedProducts = mutableDetail.products ?? []
+                    
+                    updatedProducts.append(contentsOf: newProducts)
+                    mutableDetail.products = updatedProducts
+                    
+                    existingConfig = Config(sort: existingConfig.sort, type: existingConfig.type, detail: mutableDetail)
+                    
+                    mergedConfigs[title] = existingConfig
+                }
+            } else {
+                configOrder.append(title)
+                mergedConfigs[title] = config
             }
         }
-
-        // Update sectionTitles based on the filtered configList
-        sectionTitles = configList.compactMap { $0.detail.title }
         
+        configList = configOrder.compactMap { mergedConfigs[$0] }
+        sectionTitles = configList.compactMap { $0.detail.title }
         updateSectionLabels()
+        
         tableView.reloadData()
     }
-
     
     @objc func showCountrySelector() {
+        addDarkOverlay()
+ 
         if countrySelectorView == nil {
             countrySelectorView = CountrySelectorView(frame: CGRect(x: 0, y: view.frame.height, width: view.frame.width, height: 500))
             countrySelectorView?.delegate = self
@@ -325,6 +322,8 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
             self.configList = selectedCountry.config
             dropdownButton.setTitle(selectedCountry.name, for: .normal)
             populateSections(from: selectedCountry.config)
+            tableView.layoutIfNeeded()
+            tableView.setContentOffset(.zero, animated: true)
         }
     }
     
@@ -335,6 +334,7 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
         }) { _ in
             self.countrySelectorView?.removeFromSuperview()
             self.countrySelectorView = nil
+            self.removeDarkOverlay()
         }
     }
     
@@ -351,8 +351,23 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
         sectionLabels.removeAll()
         setupSectionLabels()
     }
-}
+
+    func addDarkOverlay() {
+        let overlayView = UIView(frame: self.view.bounds)
+        overlayView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        overlayView.tag = 100
+        overlayView.isUserInteractionEnabled = true
+        self.view.addSubview(overlayView)
+    }
     
+    func removeDarkOverlay() {
+        if let overlayView = self.view.viewWithTag(100) {
+            overlayView.removeFromSuperview()
+        }
+    }
+}
+
+//MARK: - HTTPRequestManagerDelegate
 extension ViewController: HTTPRequestManagerDelegate {
     func manager(_ manager: HTTPRequestManager, didGet pageData: ResponsePageData) {
         
@@ -372,7 +387,6 @@ extension ViewController: HTTPRequestManagerDelegate {
     func manager(_ manager: HTTPRequestManager, didFailWith error: any Error) {
         print(error)
     }
-
 }
 
 extension ViewController: UITableViewDataSource, UITableViewDelegate {
@@ -382,14 +396,13 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 500
+        return 800
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 2 // Assuming each section has two rows: one for the title and one for the content
+        return 2
     }
 
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let configIndex = indexPath.section
@@ -410,9 +423,8 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
                 
                 if let merchantCoupons = config.detail.merchantCoupons {
                     cell.configure(with: merchantCoupons)
-                    cell.merchantCouponisExpanded = false
-                } else {
-                    print("沒有商家優惠券")
+
+
                 }
                 
                 cell.delegate = self
@@ -463,18 +475,39 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
                     cell.configure(with: coupons)
                 }
                 
-                return cell
+                cell.selectionStyle = .none
                 
-            } else if config.type == "DESCRIPTION" {
-                let cell = tableView.dequeueReusableCell(withIdentifier: "NoticeTableViewCell", for: indexPath) as! NoticeTableViewCell
-                cell.configure(with: config.detail)
-                return cell
-            }
+                cell.delegate = self
             
+            return cell
+            
+        } else if config.type == "DESCRIPTION" {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "NoticeTableViewCell", for: indexPath) as! NoticeTableViewCell
+            
+            cell.configure(with: config.detail)
+            
+            cell.selectionStyle = .none
+            
+            return cell
+        }
+        
             return UITableViewCell()
         }
     }
 
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+
+        if let guideContainerCell = cell as? GuideContainerCell {
+            guideContainerCell.startAutoScrollTimer()
+        }
+    }
+
+    func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+
+        if let guideContainerCell = cell as? GuideContainerCell {
+            guideContainerCell.stopAutoScrollTimer()
+        }
+    }
 }
 
 //MARK: - Merchant Coupon Container Cell Delegate
@@ -494,8 +527,22 @@ extension ViewController: MerchantCouponContainerCellDelegate {
 extension ViewController: UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        updateSectionLabelBasedOnScrollPosition()
+
+        guard let visibleIndexPaths = tableView.indexPathsForVisibleRows else { return }
+        
+        var firstFullyVisibleSection = visibleIndexPaths.first?.section ?? 0
+        for indexPath in visibleIndexPaths {
+            let rectInTableView = tableView.rectForRow(at: indexPath)
+            let rectInSuperview = tableView.convert(rectInTableView, to: tableView.superview)
+            if rectInSuperview.origin.y >= tableView.frame.origin.y + tableView.contentInset.top {
+                firstFullyVisibleSection = indexPath.section
+                break
+            }
+        }
+        
+        updateSectionLabelStyles(selectedIndex: firstFullyVisibleSection)
     }
+
     
     func updateSectionLabelBasedOnScrollPosition() {
         guard let visibleIndexPaths = tableView.indexPathsForVisibleRows, !visibleIndexPaths.isEmpty else {
@@ -507,33 +554,171 @@ extension ViewController: UIScrollViewDelegate {
     }
     
     func updateSectionLabelStyles(selectedIndex: Int) {
-        for (index, label) in sectionLabels.enumerated() {
-            if index == selectedIndex {
-                label.font = UIFont.boldSystemFont(ofSize: 16)
-                label.textColor = .systemTeal
-            } else {
-                label.font = UIFont.systemFont(ofSize: 16)
-                label.textColor = .black
+
+            for (index, label) in sectionLabels.enumerated() {
+                UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut], animations: {
+                    label.font = index == selectedIndex ? UIFont.boldSystemFont(ofSize: 16) : UIFont.systemFont(ofSize: 16)
+                    label.textColor = index == selectedIndex ? .systemTeal : .black
+                }, completion: nil)
             }
-        }
-        
-        if let underlineView = underlineView {
+
             let selectedLabel = sectionLabels[selectedIndex]
-            UIView.animate(withDuration: 0.3) {
-                self.underlineView?.frame.origin.x = selectedLabel.frame.origin.x
-                self.underlineView?.frame.size.width = selectedLabel.intrinsicContentSize.width
-            }
+            let labelFrameInScrollView = selectedLabel.convert(selectedLabel.bounds, to: scrollView)
+
+            let scrollViewWidth = scrollView.frame.width
+            let offsetX = labelFrameInScrollView.midX - scrollViewWidth / 2
+            let minOffsetX = 0.0
+            let maxOffsetX = scrollView.contentSize.width - scrollViewWidth
+            let targetOffsetX = max(minOffsetX, min(maxOffsetX, offsetX))
+
+            UIView.animate(withDuration: 0.1, delay: 0, options: [.curveEaseInOut], animations: {
+                self.scrollView.setContentOffset(CGPoint(x: targetOffsetX, y: 0), animated: false)
+            }, completion: nil)
+
+            UIView.animate(withDuration: 0.1, delay: 0, options: [.curveEaseInOut], animations: {
+                self.underlineLeadingConstraint?.constant = selectedLabel.frame.origin.x
+                self.underlineWidthConstraint?.constant = selectedLabel.intrinsicContentSize.width
+                self.view.layoutIfNeeded()
+            }, completion: nil)
         }
-    }
 }
 
 extension ViewController: PromoContainerCellDelegate {
     func shouldDeleteTableViewCell(_ cell: PromoContainerCell) {
-        if let indexPath = tableView.indexPath(for: cell) {
-            let previousIndexPath = IndexPath(row: indexPath.row - 1, section: indexPath.section)
-            configList.remove(at: indexPath.row / 2)
-            tableView.deleteRows(at: [indexPath, previousIndexPath], with: .automatic)
 
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
+        
+        configList.remove(at: indexPath.section)
+        
+        tableView.beginUpdates()
+        tableView.reloadSections(IndexSet(integer: indexPath.section), with: .automatic)
+        tableView.endUpdates()
+    }
+}
+
+extension ViewController: CouponContainerCellDelegate {
+    func didSelectCoupon() {
+        showPopupView()
+    }
+}
+
+extension ViewController {
+    func showPopupView() {
+        
+        addDarkOverlay()
+        
+        let popupView = UIView()
+        popupView.backgroundColor = .white
+        popupView.layer.cornerRadius = 20
+        popupView.layer.masksToBounds = true
+        popupView.translatesAutoresizingMaskIntoConstraints = false
+        self.view.addSubview(popupView)
+        
+        let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        popupView.addGestureRecognizer(panGestureRecognizer)
+        
+        let handleView = UIView()
+        handleView.backgroundColor = .lightGray
+        handleView.layer.cornerRadius = 2.5
+        handleView.translatesAutoresizingMaskIntoConstraints = false
+        popupView.addSubview(handleView)
+        
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        handleView.addGestureRecognizer(panGesture)
+        
+        let googleButton = UIButton(type: .system)
+        googleButton.setTitle("Google 登入", for: .normal)
+        googleButton.backgroundColor = .systemTeal
+        googleButton.tintColor = .white
+        googleButton.layer.cornerRadius = 10
+        googleButton.translatesAutoresizingMaskIntoConstraints = false
+        popupView.addSubview(googleButton)
+        
+        let closeButton1 = UIButton(type: .system)
+        closeButton1.setImage(UIImage(systemName: "xmark"), for: .normal)
+        closeButton1.tintColor = .black
+        closeButton1.addTarget(self, action: #selector(closePopupView), for: .touchUpInside)
+        closeButton1.translatesAutoresizingMaskIntoConstraints = false
+        popupView.addSubview(closeButton1)
+        
+        let closeButton2 = UIButton(type: .system)
+        closeButton2.setTitle("關閉", for: .normal)
+        closeButton2.tintColor = .systemTeal
+        closeButton2.addTarget(self, action: #selector(closePopupView), for: .touchUpInside)
+        closeButton2.translatesAutoresizingMaskIntoConstraints = false
+        popupView.addSubview(closeButton2)
+        
+        let imageView = UIImageView(image: UIImage(named: "allCUTE"))
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        popupView.addSubview(imageView)
+        
+        NSLayoutConstraint.activate([
+            popupView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            popupView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            popupView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            popupView.heightAnchor.constraint(equalToConstant: 300),
+            
+            handleView.topAnchor.constraint(equalTo: popupView.topAnchor, constant: 8),
+            handleView.centerXAnchor.constraint(equalTo: popupView.centerXAnchor),
+            handleView.widthAnchor.constraint(equalToConstant: 44),
+            handleView.heightAnchor.constraint(equalToConstant: 2.5),
+            
+            imageView.topAnchor.constraint(equalTo: popupView.topAnchor, constant: 40),
+            imageView.centerXAnchor.constraint(equalTo: popupView.centerXAnchor),
+            imageView.widthAnchor.constraint(equalToConstant: 100),
+            imageView.heightAnchor.constraint(equalToConstant: 100),
+            
+            googleButton.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20),
+            googleButton.centerXAnchor.constraint(equalTo: popupView.centerXAnchor),
+            googleButton.widthAnchor.constraint(equalToConstant: 200),
+            googleButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            closeButton1.leadingAnchor.constraint(equalTo: popupView.leadingAnchor, constant: 16),
+            closeButton1.topAnchor.constraint(equalTo: popupView.topAnchor, constant: 20),
+            
+            closeButton2.topAnchor.constraint(equalTo: googleButton.bottomAnchor, constant: 10),
+            closeButton2.centerXAnchor.constraint(equalTo: popupView.centerXAnchor),
+            closeButton2.widthAnchor.constraint(equalToConstant: 100),
+            closeButton2.heightAnchor.constraint(equalToConstant: 50)
+        ])
+        
+        popupView.transform = CGAffineTransform(translationX: 0, y: 300)
+        UIView.animate(withDuration: 0.3) {
+            popupView.transform = .identity
+        }
+        self.popupView = popupView
+    }
+
+    @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+        guard let popupView = self.popupView else { return }
+        
+        let translation = gesture.translation(in: popupView)
+        
+        switch gesture.state {
+        case .changed:
+            if translation.y > 0 {
+                popupView.transform = CGAffineTransform(translationX: 0, y: translation.y)
+            }
+        case .ended:
+            if translation.y > 100 {
+                closePopupView()
+            } else {
+                UIView.animate(withDuration: 0.3) {
+                    popupView.transform = .identity
+                }
+            }
+        default:
+            break
         }
     }
+    @objc func closePopupView() {
+            UIView.animate(withDuration: 0.3, animations: {
+                self.popupView?.transform = CGAffineTransform(translationX: 0, y: 300)
+            }) { _ in
+                self.popupView?.removeFromSuperview()
+                self.popupView = nil
+                self.removeDarkOverlay()
+            }
+        }
 }

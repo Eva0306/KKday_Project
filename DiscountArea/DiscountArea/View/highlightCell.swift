@@ -121,7 +121,6 @@ class highlightCell: UICollectionViewCell {
         gradientView.layer.insertSublayer(gradientLayer, at: 0)
     }
 
-
     override func layoutSubviews() {
         super.layoutSubviews()
         DispatchQueue.main.async {

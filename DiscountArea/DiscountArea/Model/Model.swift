@@ -52,7 +52,7 @@ struct Detail: Codable {
     let endTime: String?
     let subtitle: String?
     let startTime: String?
-    let products: [Product]?
+    var products: [Product]?
     let merchantCoupons: [MerchantCoupon]?
     let coupons: [Coupon]?
     let guides: [Guide]?
@@ -148,7 +148,7 @@ struct Coupon: Codable {
         return remainingTime.value(for: component) ?? 0
     }
     
-    func parseDate(from dateString: String?) -> Date? {  // 這裡將 private 修改為 internal
+    func parseDate(from dateString: String?) -> Date? { 
         guard let dateString = dateString else { return nil }
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
