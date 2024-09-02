@@ -10,12 +10,12 @@ enum PromoLayoutType {
 
 class CollectionViewFactory {
 
-    func createCollectionView(for dataType: PromoLayoutType) -> UICollectionView {
-        let layout = createLayout(for: dataType)
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .white
-        return collectionView
-    }
+//    func createCollectionView(for dataType: PromoLayoutType) -> UICollectionView {
+//        let layout = createLayout(for: dataType)
+//        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+//        collectionView.backgroundColor = .white
+//        return collectionView
+//    }
 
     func createLayout(for dataType: PromoLayoutType) -> UICollectionViewCompositionalLayout {
         switch dataType {
@@ -78,7 +78,7 @@ class CollectionViewFactory {
         
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 0
-        section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 0, bottom: 20, trailing: 0)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 24, bottom: 20, trailing: 24)
         
         return section
     }
@@ -94,7 +94,7 @@ class CollectionViewFactory {
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
         section.interGroupSpacing = 12
-        section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 0, bottom: 20, trailing: 0)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 24, bottom: 20, trailing: 24)
         
         return section
     }

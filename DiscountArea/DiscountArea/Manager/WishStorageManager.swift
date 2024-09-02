@@ -1,9 +1,4 @@
-//
-//  WishStorageManager.swift
-//  DiscountArea
-//
-//  Created by Nicky Y on 2024/8/30.
-//
+
 
 import Foundation
 import UIKit

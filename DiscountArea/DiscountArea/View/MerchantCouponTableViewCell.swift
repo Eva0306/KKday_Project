@@ -2,8 +2,6 @@
 
 import UIKit
 
-//ResponsePageData.data.categories.config.type = "MERCHANT_COUPON"
-
 class MerchantCouponTableViewCell: UITableViewCell {
     
     lazy var merchantImageView: UIImageView = {

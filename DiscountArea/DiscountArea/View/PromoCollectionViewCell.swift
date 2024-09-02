@@ -1,9 +1,4 @@
-//
-//  PromoCollectionViewCell.swift
-//  DiscountArea
-//
-//  Created by Nicky Y on 2024/8/23.
-//
+
 
 import UIKit
 
@@ -250,7 +245,7 @@ class PromoProductCell: UICollectionViewCell {
 
         discountLabel.text = "\(Int(product.discount * 100))% OFF"
         nameLabel.text = product.name
-        ratingLabel.text = "\(product.ratingStar)(\(product.ratingCount))"
+        ratingLabel.text = "\(String(format: "%.1f", product.ratingStar))(\(product.ratingCount))"
         originalPriceLabel.text = "TWD \(product.originPrice)"
         originalPriceLabel.attributedText = originalPriceLabel.text?.strikeThrough()
         priceLabel.text = "TWD \(product.price) 起"

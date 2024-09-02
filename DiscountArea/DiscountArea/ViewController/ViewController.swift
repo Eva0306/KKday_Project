@@ -1,6 +1,7 @@
 
 
 import UIKit
+import MJRefresh
 
 class ViewController: UIViewController, CountrySelectorViewDelegate {
     
@@ -21,14 +22,11 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
     var underlineLeadingConstraint: NSLayoutConstraint?
     var underlineWidthConstraint: NSLayoutConstraint?
     
-    var selectedCountry: Category? {
-        didSet {
-            fetchSectionData(for: selectedCountry)
-        }
-    }
+    var selectedCountry: Category?
     
     var configList: [Config] = [] {
         didSet {
+            updateSectionLabels()
             tableView.reloadData()
         }
     }
@@ -53,6 +51,7 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
         tableView.register(CouponContainerCell.self, forCellReuseIdentifier: "CouponContainerCell")
         tableView.register(NoticeTableViewCell.self, forCellReuseIdentifier: "NoticeTableViewCell")
         
+        tableView.mj_header = MJRefreshNormalHeader(refreshingTarget: self, refreshingAction: #selector(refreshData))
     }
     
     func setupUI() {
@@ -165,15 +164,10 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
             sectionHeaderView.heightAnchor.constraint(equalToConstant: 40)
         ])
         
-        setupSectionLabels()
+        setupSectionLabelView()
     }
     
-    func setupSectionLabels() {
-        
-        sectionLabels.forEach { $0.removeFromSuperview() }
-        sectionLabels.removeAll()
-        underlineView?.removeFromSuperview()
-        
+    func setupSectionLabelView() {
         scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.showsHorizontalScrollIndicator = false
@@ -188,61 +182,12 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
             scrollView.contentLayoutGuide.heightAnchor.constraint(equalToConstant: 40)
         ])
         
-        let underlineView = UIView()
-        underlineView.translatesAutoresizingMaskIntoConstraints = false
-        underlineView.backgroundColor = .systemTeal
-        scrollView.addSubview(underlineView)
-        self.underlineView = underlineView
+        underlineView = UIView()
+        underlineView?.translatesAutoresizingMaskIntoConstraints = false
+        underlineView?.backgroundColor = .systemTeal
+        scrollView.addSubview(underlineView!)
         
-        var previousLabel: UILabel?
-        
-        for (index, title) in sectionTitles.enumerated() {
-            let label = UILabel()
-            label.text = title
-            label.font = UIFont.systemFont(ofSize: 16)
-            label.textColor = index == 0 ? .systemTeal : .black
-            label.isUserInteractionEnabled = true
-            label.tag = index
-            
-            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(sectionLabelTapped(_:)))
-            label.addGestureRecognizer(tapGesture)
-            
-            label.translatesAutoresizingMaskIntoConstraints = false
-            scrollView.addSubview(label)
-            sectionLabels.append(label)
-            
-            NSLayoutConstraint.activate([
-                label.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor),
-                label.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
-            ])
-            
-            if let previous = previousLabel {
-                NSLayoutConstraint.activate([
-                    label.leadingAnchor.constraint(equalTo: previous.trailingAnchor, constant: 16)
-                ])
-            } else {
-                NSLayoutConstraint.activate([
-                    label.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor)
-                ])
-                
-                underlineLeadingConstraint = underlineView.leadingAnchor.constraint(equalTo: label.leadingAnchor)
-                underlineWidthConstraint = underlineView.widthAnchor.constraint(equalToConstant: label.intrinsicContentSize.width)
-            }
-            
-            previousLabel = label
-        }
-        
-        if let underlineLeadingConstraint = underlineLeadingConstraint,
-           let underlineWidthConstraint = underlineWidthConstraint {
-            NSLayoutConstraint.activate([
-                underlineLeadingConstraint,
-                underlineWidthConstraint,
-                underlineView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-                underlineView.heightAnchor.constraint(equalToConstant: 2)
-            ])
-        }
-        
-        previousLabel?.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -16).isActive = true
+        updateSectionLabels()
         
         view.layoutIfNeeded()
     }
@@ -256,46 +201,13 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
                 return
             }
             
-            updateSectionLabelStyles(selectedIndex: index)
+            //updateSectionLabelStyles(selectedIndex: index)
             
             let indexPath = IndexPath(row: 0, section: index)
             tableView.scrollToRow(at: indexPath, at: .top, animated: true)
         }
     }
 
-    func populateSections(from configs: [Config]) {
-        
-        var mergedConfigs: [String: Config] = [:]
-        var configOrder: [String] = []
-        
-        for config in configs {
-            guard let title = config.detail.title else { continue }
-            
-            if var existingConfig = mergedConfigs[title] {
-                if let newProducts = config.detail.products {
-                    var mutableDetail = existingConfig.detail
-                    var updatedProducts = mutableDetail.products ?? []
-                    
-                    updatedProducts.append(contentsOf: newProducts)
-                    mutableDetail.products = updatedProducts
-                    
-                    existingConfig = Config(sort: existingConfig.sort, type: existingConfig.type, detail: mutableDetail)
-                    
-                    mergedConfigs[title] = existingConfig
-                }
-            } else {
-                configOrder.append(title)
-                mergedConfigs[title] = config
-            }
-        }
-        
-        configList = configOrder.compactMap { mergedConfigs[$0] }
-        sectionTitles = configList.compactMap { $0.detail.title }
-        updateSectionLabels()
-        
-        tableView.reloadData()
-    }
-    
     @objc func showCountrySelector() {
         addDarkOverlay()
  
@@ -321,7 +233,6 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
         if let selectedCountry = country {
             self.configList = selectedCountry.config
             dropdownButton.setTitle(selectedCountry.name, for: .normal)
-            populateSections(from: selectedCountry.config)
             tableView.layoutIfNeeded()
             tableView.setContentOffset(.zero, animated: true)
         }
@@ -338,18 +249,73 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
         }
     }
     
-    func fetchSectionData(for country: Category?) {
-        guard let country = country else { return }
-        populateSections(from: country.config)
-        
-    }
-    
     func updateSectionLabels() {
-        for label in sectionLabels {
-            label.removeFromSuperview()
-        }
+        
+        if configList.isEmpty { return }
+        
+        sectionLabels.forEach { $0.removeFromSuperview() }
+        
         sectionLabels.removeAll()
-        setupSectionLabels()
+        
+        sectionTitles = configList.compactMap { $0.detail.title }
+        
+        var previousLabel: UILabel?
+        
+        for (index, title) in sectionTitles.enumerated() {
+            let label: UILabel
+            if index < sectionLabels.count {
+                label = sectionLabels[index]
+                label.text = title
+            } else {
+                label = UILabel()
+                label.text = title
+                label.font = UIFont.systemFont(ofSize: 16)
+                label.textColor = index == 0 ? .systemTeal : .black
+                label.isUserInteractionEnabled = true
+                label.tag = index
+                
+                let tapGesture = UITapGestureRecognizer(target: self, action: #selector(sectionLabelTapped(_:)))
+                label.addGestureRecognizer(tapGesture)
+                
+                label.translatesAutoresizingMaskIntoConstraints = false
+                scrollView.addSubview(label)
+                sectionLabels.append(label)
+            }
+            
+            NSLayoutConstraint.activate([
+                label.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor),
+                label.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
+            ])
+            
+            if let previous = previousLabel {
+                NSLayoutConstraint.activate([
+                    label.leadingAnchor.constraint(equalTo: previous.trailingAnchor, constant: 16)
+                ])
+            } else {
+                NSLayoutConstraint.activate([
+                    label.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor)
+                ])
+                
+                underlineLeadingConstraint = underlineView?.leadingAnchor.constraint(equalTo: label.leadingAnchor)
+                underlineWidthConstraint = underlineView?.widthAnchor.constraint(equalToConstant: label.intrinsicContentSize.width)
+            }
+            
+            previousLabel = label
+        }
+        
+        if let underlineLeadingConstraint = underlineLeadingConstraint,
+           let underlineWidthConstraint = underlineWidthConstraint {
+            NSLayoutConstraint.activate([
+                underlineLeadingConstraint,
+                underlineWidthConstraint,
+                underlineView!.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+                underlineView!.heightAnchor.constraint(equalToConstant: 2)
+            ])
+        }
+        
+        previousLabel?.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -16).isActive = true
+        
+        view.layoutIfNeeded()
     }
 
     func addDarkOverlay() {
@@ -374,10 +340,24 @@ extension ViewController: HTTPRequestManagerDelegate {
         countries = pageData.data.data.categories
         countrySelectorView?.countries = countries
         
-        self.configList = pageData.data.data.categories[0].config
+        if let selectedCountry = self.selectedCountry,
+           let restoredCountry = countries.first(where: { $0.name == selectedCountry.name }) {
+            
+            self.selectedCountry = restoredCountry
+            self.configList = restoredCountry.config
+            dropdownButton.setTitle(restoredCountry.name, for: .normal)
+            
+        } else {
+            
+            self.selectedCountry = countries.first
+            if let firstCountry = self.selectedCountry {
+                self.configList = firstCountry.config
+                dropdownButton.setTitle(firstCountry.name, for: .normal)
+            }
+        }
         
-        populateSections(from: pageData.data.data.categories[0].config)
-
+        self.tableView.mj_header?.endRefreshing()
+        tableView.reloadData()
     }
     
     func manager(_ manager: HTTPRequestManager, didGet productData: ResponseProductData) {
@@ -385,6 +365,8 @@ extension ViewController: HTTPRequestManagerDelegate {
     }
     
     func manager(_ manager: HTTPRequestManager, didFailWith error: any Error) {
+        
+        self.tableView.mj_header?.endRefreshing()
         print(error)
     }
 }
@@ -542,67 +524,62 @@ extension ViewController: UIScrollViewDelegate {
         
         updateSectionLabelStyles(selectedIndex: firstFullyVisibleSection)
     }
-
-    
-    func updateSectionLabelBasedOnScrollPosition() {
-        guard let visibleIndexPaths = tableView.indexPathsForVisibleRows, !visibleIndexPaths.isEmpty else {
-            return
-        }
-
-        let firstVisibleSection = visibleIndexPaths[0].section
-        updateSectionLabelStyles(selectedIndex: firstVisibleSection)
-    }
     
     func updateSectionLabelStyles(selectedIndex: Int) {
-
-            for (index, label) in sectionLabels.enumerated() {
-                UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut], animations: {
-                    label.font = index == selectedIndex ? UIFont.boldSystemFont(ofSize: 16) : UIFont.systemFont(ofSize: 16)
-                    label.textColor = index == selectedIndex ? .systemTeal : .black
-                }, completion: nil)
-            }
-
-            let selectedLabel = sectionLabels[selectedIndex]
-            let labelFrameInScrollView = selectedLabel.convert(selectedLabel.bounds, to: scrollView)
-
-            let scrollViewWidth = scrollView.frame.width
-            let offsetX = labelFrameInScrollView.midX - scrollViewWidth / 2
-            let minOffsetX = 0.0
-            let maxOffsetX = scrollView.contentSize.width - scrollViewWidth
-            let targetOffsetX = max(minOffsetX, min(maxOffsetX, offsetX))
-
-            UIView.animate(withDuration: 0.1, delay: 0, options: [.curveEaseInOut], animations: {
-                self.scrollView.setContentOffset(CGPoint(x: targetOffsetX, y: 0), animated: false)
-            }, completion: nil)
-
-            UIView.animate(withDuration: 0.1, delay: 0, options: [.curveEaseInOut], animations: {
-                self.underlineLeadingConstraint?.constant = selectedLabel.frame.origin.x
-                self.underlineWidthConstraint?.constant = selectedLabel.intrinsicContentSize.width
-                self.view.layoutIfNeeded()
+        
+        for (index, label) in sectionLabels.enumerated() {
+            UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut], animations: {
+                label.font = index == selectedIndex ? UIFont.boldSystemFont(ofSize: 16) : UIFont.systemFont(ofSize: 16)
+                label.textColor = index == selectedIndex ? .systemTeal : .black
             }, completion: nil)
         }
-}
-
-extension ViewController: PromoContainerCellDelegate {
-    func shouldDeleteTableViewCell(_ cell: PromoContainerCell) {
-
-        guard let indexPath = tableView.indexPath(for: cell) else { return }
         
-        configList.remove(at: indexPath.section)
+        let selectedLabel = sectionLabels[selectedIndex]
+        let labelFrameInScrollView = selectedLabel.convert(selectedLabel.bounds, to: scrollView)
         
-        tableView.beginUpdates()
-        tableView.reloadSections(IndexSet(integer: indexPath.section), with: .automatic)
-        tableView.endUpdates()
+        let scrollViewWidth = scrollView.frame.width
+        let offsetX = labelFrameInScrollView.midX - scrollViewWidth / 2
+        let minOffsetX = 0.0
+        let maxOffsetX = scrollView.contentSize.width - scrollViewWidth
+        let targetOffsetX = max(minOffsetX, min(maxOffsetX, offsetX))
+        
+        UIView.animate(withDuration: 0.1, delay: 0, options: [.curveEaseInOut], animations: {
+            self.scrollView.setContentOffset(CGPoint(x: targetOffsetX, y: 0), animated: false)
+        }, completion: nil)
+        
+        if let existingWidthConstraint = underlineWidthConstraint {
+            underlineView?.removeConstraint(existingWidthConstraint)
+        }
+        
+        underlineWidthConstraint = underlineView?.widthAnchor.constraint(equalToConstant: selectedLabel.intrinsicContentSize.width)
+        underlineWidthConstraint?.isActive = true
+        
+        UIView.animate(withDuration: 0.1, delay: 0, options: [.curveEaseInOut], animations: {
+            self.underlineLeadingConstraint?.constant = selectedLabel.frame.origin.x
+            self.view.layoutIfNeeded()
+        }, completion: nil)
     }
 }
 
+//MARK: - Remove Cell if Product is null
+extension ViewController: PromoContainerCellDelegate {
+    func shouldDeleteTableViewCell(_ cell: PromoContainerCell) {
+        
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
+        
+        tableView.reloadSections(IndexSet(integer: indexPath.section), with: .automatic)
+        
+        configList.remove(at: indexPath.section)
+    }
+}
+
+//MARK: - Coupon Container Cell Delegate
 extension ViewController: CouponContainerCellDelegate {
+    
     func didSelectCoupon() {
         showPopupView()
     }
-}
 
-extension ViewController {
     func showPopupView() {
         
         addDarkOverlay()
@@ -721,4 +698,11 @@ extension ViewController {
                 self.removeDarkOverlay()
             }
         }
+}
+
+//MARK: - Pull to Refresh
+extension ViewController {
+    @objc func refreshData() {
+        httpRequestManager.fetchPageData()
+    }
 }

@@ -1,9 +1,4 @@
-//
-//  GuideContainerCell.swift
-//  DiscountArea
-//
-//  Created by J oyce on 2024/8/27.
-//
+
 
 import Foundation
 import UIKit

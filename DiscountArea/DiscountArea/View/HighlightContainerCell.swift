@@ -1,9 +1,3 @@
-//
-//  HighlightContainerCell.swift
-//  DiscountArea
-//
-//  Created by J oyce on 2024/8/27.
-//
 
 import Foundation
 import UIKit
@@ -76,7 +70,7 @@ class HighlightContainerCell: UITableViewCell, UICollectionViewDataSource, UICol
         } else {
             let product = productData[indexPath.item]
             cell.imageView.loadImage(from: product.imgUrl)
-            cell.configure(labelTexts: [product.name, " 星等 \(product.ratingStar) (\(product.ratingCount)) | 6K+ 已訂購"])
+            cell.configure(labelTexts: [product.name, " \(String(format: "%.1f", product.ratingStar)) (\(product.ratingCount)) | 6K+ 已訂購"])
 
             if product.discount > 0.01 && product.discount <= 0.99 {
                 cell.gradientView.isHidden = false

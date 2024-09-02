@@ -38,6 +38,7 @@
 		B3EE25922C7D8036006B24A4 /* PromoContainerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EE25912C7D8036006B24A4 /* PromoContainerCell.swift */; };
 		B3EE25982C7F64C9006B24A4 /* highlightCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EE25972C7F64C9006B24A4 /* highlightCell.swift */; };
 		B3EE259C2C7F6500006B24A4 /* HighlightContainerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EE259B2C7F6500006B24A4 /* HighlightContainerCell.swift */; };
+		B3EE25B72C854A5A006B24A4 /* MJRefresh in Frameworks */ = {isa = PBXBuildFile; productRef = B3EE25B62C854A5A006B24A4 /* MJRefresh */; };
 		E9C384E82C7DDCBB00BDF717 /* GuideContainerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C384E72C7DDCBB00BDF717 /* GuideContainerCell.swift */; };
 		E9C384EA2C7DDCD300BDF717 /* GuideCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C384E92C7DDCD300BDF717 /* GuideCell.swift */; };
 		E9C384EC2C7EB10800BDF717 /* ExtensionUrl.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C384EB2C7EB10800BDF717 /* ExtensionUrl.swift */; };
@@ -87,6 +88,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B3EE25B72C854A5A006B24A4 /* MJRefresh in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -207,6 +209,9 @@
 			dependencies = (
 			);
 			name = DiscountArea;
+			packageProductDependencies = (
+				B3EE25B62C854A5A006B24A4 /* MJRefresh */,
+			);
 			productName = DiscountArea;
 			productReference = B3EE255D2C77447E006B24A4 /* DiscountArea.app */;
 			productType = "com.apple.product-type.application";
@@ -235,6 +240,9 @@
 				Base,
 			);
 			mainGroup = B3EE25542C77447E006B24A4;
+			packageReferences = (
+				B3EE25B52C854A5A006B24A4 /* XCRemoteSwiftPackageReference "MJRefresh" */,
+			);
 			productRefGroup = B3EE255E2C77447E006B24A4 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -515,6 +523,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B3EE25B52C854A5A006B24A4 /* XCRemoteSwiftPackageReference "MJRefresh" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/CoderMJLee/MJRefresh.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.7.9;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B3EE25B62C854A5A006B24A4 /* MJRefresh */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B3EE25B52C854A5A006B24A4 /* XCRemoteSwiftPackageReference "MJRefresh" */;
+			productName = MJRefresh;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		3C64C6952C81722E0081F2AC /* WishList.xcdatamodeld */ = {

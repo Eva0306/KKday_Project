@@ -11,6 +11,9 @@ class PromoContainerCell: UITableViewCell {
 
     var collectionView: UICollectionView!
     
+    private let leftGradientView = UIView()
+    private let rightGradientView = UIView()
+    
     var configDetail: Detail?
     
     var httpRequestManager = HTTPRequestManager()
@@ -45,8 +48,8 @@ class PromoContainerCell: UITableViewCell {
         
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            collectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
+            collectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
         
@@ -225,7 +228,6 @@ extension PromoContainerCell: UICollectionViewDelegate {
 
 extension PromoContainerCell {
     func setupLeftGradientView() {
-        let view = UIView()
         let layer0 = CAGradientLayer()
         
         layer0.colors = [UIColor(red: 1, green: 1, blue: 1, alpha: 1).cgColor, UIColor(red: 1, green: 1, blue: 1, alpha: 0).cgColor]
@@ -233,27 +235,26 @@ extension PromoContainerCell {
         layer0.startPoint = CGPoint(x: 0, y: 0.5)
         layer0.endPoint = CGPoint(x: 1, y: 0.5)
         
-        layer0.frame = view.bounds
-        view.layer.insertSublayer(layer0, at: 0)
+        layer0.frame = leftGradientView.bounds
+        leftGradientView.layer.insertSublayer(layer0, at: 0)
         
-        contentView.addSubview(view)
+        contentView.addSubview(leftGradientView)
         
-        view.translatesAutoresizingMaskIntoConstraints = false
+        leftGradientView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            view.topAnchor.constraint(equalTo: contentView.topAnchor),
-            view.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            view.widthAnchor.constraint(equalToConstant: 50),
-            view.heightAnchor.constraint(equalToConstant: 32)
+            leftGradientView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            leftGradientView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            leftGradientView.widthAnchor.constraint(equalToConstant: 50),
+            leftGradientView.heightAnchor.constraint(equalToConstant: 32)
         ])
         
-        contentView.bringSubviewToFront(view)
-        view.layoutIfNeeded()
-        layer0.frame = view.bounds
+        contentView.bringSubviewToFront(leftGradientView)
+        leftGradientView.layoutIfNeeded()
+        layer0.frame = leftGradientView.bounds
     }
     
     func setupRightGradientView() {
-        let view = UIView()
         let layer0 = CAGradientLayer()
           
         layer0.colors = [UIColor(red: 1, green: 1, blue: 1, alpha: 1).cgColor, UIColor(red: 1, green: 1, blue: 1, alpha: 0).cgColor]
@@ -261,22 +262,28 @@ extension PromoContainerCell {
         layer0.startPoint = CGPoint(x: 1, y: 0.5)
         layer0.endPoint = CGPoint(x: 0, y: 0.5)
         
-        layer0.frame = view.bounds
-        view.layer.insertSublayer(layer0, at: 0)
+        layer0.frame = rightGradientView.bounds
+        rightGradientView.layer.insertSublayer(layer0, at: 0)
         
-        contentView.addSubview(view)
+        contentView.addSubview(rightGradientView)
         
-        view.translatesAutoresizingMaskIntoConstraints = false
+        rightGradientView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            view.topAnchor.constraint(equalTo: contentView.topAnchor),
-            view.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            view.widthAnchor.constraint(equalToConstant: 50),
-            view.heightAnchor.constraint(equalToConstant: 32)
+            rightGradientView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            rightGradientView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            rightGradientView.widthAnchor.constraint(equalToConstant: 50),
+            rightGradientView.heightAnchor.constraint(equalToConstant: 32)
         ])
         
-        contentView.bringSubviewToFront(view)
-        view.layoutIfNeeded()
-        layer0.frame = view.bounds
+        contentView.bringSubviewToFront(rightGradientView)
+        rightGradientView.layoutIfNeeded()
+        layer0.frame = rightGradientView.bounds
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        rightGradientView.removeFromSuperview()
+        leftGradientView.removeFromSuperview()
     }
 }
