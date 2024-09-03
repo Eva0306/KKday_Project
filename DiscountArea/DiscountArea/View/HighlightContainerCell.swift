@@ -4,23 +4,12 @@ import UIKit
 
 class HighlightContainerCell: UITableViewCell, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout{
 
-    var httpRequestManager = HTTPRequestManager()
-
-    var products: [Product] = []
-
-    var productData: [ProductData] = []{
-        didSet{
-            collectionView.reloadData()
-        }
-    }
-
-    var productIdList: [String] = []
+    var productData: [ProductData] = []
 
     var collectionView: UICollectionView!
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        httpRequestManager.delegate = self
         setupCollectionView()
     }
 
@@ -107,32 +96,12 @@ class HighlightContainerCell: UITableViewCell, UICollectionViewDataSource, UICol
     // MARK: - Configure
 
     func configure(with detail: Detail){
-        //self.products = detail.products
         
         if let productDetails = detail.productDetails {
             productData = productDetails
         }
-//        if let firstProductUrlId = products.first?.productUrlId, !productIdList.contains(firstProductUrlId) {
-//            productIdList = []
-//            productIdList.append(firstProductUrlId)
-//        }
-        //self.httpRequestManager.fetchProductData(productList: productIdList)
-    }
-}
-
-// MARK: - HTTPRequestManagerDelegate
-
-extension HighlightContainerCell: HTTPRequestManagerDelegate {
-    func manager(_ manager: HTTPRequestManager, didGet productData: ResponseProductData) {
-        self.productData = productData.data
-    }
-
-    func manager(_ manager: HTTPRequestManager, didGet pageData: ResponsePageData) {
-        return
-    }
-
-    func manager(_ manager: HTTPRequestManager, didFailWith error: any Error) {
-        return
+        
+        collectionView.reloadData()
     }
 }
 

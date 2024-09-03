@@ -360,10 +360,6 @@ extension ViewController: HTTPRequestManagerDelegate {
         fetchAllProducts()
     }
     
-    func manager(_ manager: HTTPRequestManager, didGet productData: ResponseProductData) {
-        
-    }
-    
     func manager(_ manager: HTTPRequestManager, didFailWith error: any Error) {
         
         self.tableView.mj_header?.endRefreshing()
@@ -376,7 +372,7 @@ extension ViewController: HTTPRequestManagerDelegate {
         for (index, config) in configList.enumerated() {
             if config.type == "PRODUCT" {
                 if let tabs = config.detail.tabs {
-                    // 有tabs
+                    
                     for (tabIndex, tab) in tabs.enumerated() {
                         let productIds = tab.products.map { $0.productUrlId }
                         
@@ -392,7 +388,7 @@ extension ViewController: HTTPRequestManagerDelegate {
                         }
                     }
                 } else {
-                    // 沒有tabs
+                    
                     let productIds = config.detail.products?.map { $0.productUrlId } ?? []
                     
                     dispatchGroup.enter()
@@ -487,8 +483,6 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "PromoContainerCell", for: indexPath) as! PromoContainerCell
                 
                 cell.configure(with: config.detail)
-                
-                cell.delegate = self
                 
                 cell.selectionStyle = .none
                 
@@ -610,20 +604,6 @@ extension ViewController: UIScrollViewDelegate {
             self.view.layoutIfNeeded()
         }, completion: nil)
         
-    }
-}
-
-//MARK: - Remove Cell if Product is null
-extension ViewController: PromoContainerCellDelegate {
-    func shouldDeleteTableViewCell(_ cell: PromoContainerCell) {
-        
-        guard let indexPath = tableView.indexPath(for: cell) else { return }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now()+0.3){
-            self.configList.remove(at: indexPath.section)
-            
-            self.tableView.reloadSections(IndexSet(integer: indexPath.section), with: .automatic)
-        }
     }
 }
 

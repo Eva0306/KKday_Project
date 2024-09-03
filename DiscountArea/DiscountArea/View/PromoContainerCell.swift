@@ -3,10 +3,6 @@
 import UIKit
 
 
-protocol PromoContainerCellDelegate: AnyObject {
-    func shouldDeleteTableViewCell(_ cell: PromoContainerCell)
-}
-
 class PromoContainerCell: UITableViewCell {
 
     var collectionView: UICollectionView!
@@ -16,13 +12,7 @@ class PromoContainerCell: UITableViewCell {
     
     var configDetail: Detail?
     
-    var httpRequestManager = HTTPRequestManager()
-    
     var tabs: [String] = []
-    
-//    var tabProducts: [(tabName: String, productIds: [String])] = []
-//    
-//    var productsId: [String] = []
     
     var products: [ProductData] = []
     
@@ -30,12 +20,10 @@ class PromoContainerCell: UITableViewCell {
     
     private var layout: PromoLayoutType = .grid
     
-    weak var delegate: PromoContainerCellDelegate?
-    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        
         setupCollectionView()
-        httpRequestManager.delegate = self
     }
     
     required init?(coder: NSCoder) {
@@ -104,15 +92,6 @@ class PromoContainerCell: UITableViewCell {
                 
                 collectionView.reloadData()
                 
-//                tabProducts = []
-//                
-//                for tab in configDetail.tabs! {
-//                    let productIds = tab.products.map { $0.productUrlId }
-//                    tabProducts.append((tabName: tab.name, productIds: productIds))
-//                }
-                
-                //httpRequestManager.fetchProductData(productList: tabProducts[selectedTabIndex].productIds)
-                
                 setupLeftGradientView()
                 setupRightGradientView()
                 
@@ -125,43 +104,12 @@ class PromoContainerCell: UITableViewCell {
                 self.products = Array(productDetails.prefix(8))
                 
                 collectionView.reloadData()
-                
-//                self.productsId = configDetail.products?.map{ $0.productUrlId } ?? []
-                
-                //httpRequestManager.fetchProductData(productList: productsId)
 
             }
         }
         
         collectionView.reloadData()
         
-    }
-
-    func checkIfShouldDelete() {
-        if products.isEmpty {
-            delegate?.shouldDeleteTableViewCell(self)
-        }
-    }
-}
-
-// MARK: - HTTPRequestManagerDelegate
-extension PromoContainerCell: HTTPRequestManagerDelegate {
-    func manager(_ manager: HTTPRequestManager, didGet pageData: ResponsePageData) {
-        
-    }
-    
-    func manager(_ manager: HTTPRequestManager, didGet productData: ResponseProductData) {
-        self.products = []
-        self.products = Array(productData.data.prefix(8))
-        
-        collectionView.reloadData()
-        self.invalidateIntrinsicContentSize()
-        checkIfShouldDelete()
-
-    }
-    
-    func manager(_ manager: HTTPRequestManager, didFailWith error: any Error) {
-        print(error)
     }
 }
 
@@ -179,7 +127,6 @@ extension PromoContainerCell: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         if layout == .tabGrid || layout == .tabRow {
-            //return section == 0 ? tabProducts.count : min(products.count, 8)
             return section == 0 ? tabs.count : products.count
         } else {
             return min(products.count, 8)
@@ -191,19 +138,23 @@ extension PromoContainerCell: UICollectionViewDataSource {
         if layout == .tabGrid || layout == .tabRow {
             if indexPath.section == 0 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TabCell", for: indexPath) as! PromoTabCell
-                //cell.configure(with: tabProducts[indexPath.item].tabName, isSelected: indexPath.item == selectedTabIndex)
+                
                 cell.configure(with: tabs[indexPath.item], isSelected: indexPath.item == selectedTabIndex)
+                
                 return cell
                 
             } else {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProductCell", for: indexPath) as! PromoProductCell
+                
                 if indexPath.item < products.count {
                     cell.configure(with: products[indexPath.item])
                 }
+                
                 return cell
             }
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProductCell", for: indexPath) as! PromoProductCell
+            
             if indexPath.item < products.count {
                 cell.configure(with: products[indexPath.item])
             }
@@ -233,7 +184,6 @@ extension PromoContainerCell: UICollectionViewDelegate {
                 if let product = self.configDetail?.tabs?[selectedTabIndex].products[indexPath.item] {
                     
                     let productId = product.productUrlId
-                    //let productId = tabProducts[selectedTabIndex].productIds[indexPath.item]
                     
                     let openUrl = "https://www.kkday.com/zh-tw/product/\(productId)"
                     open(urlString: openUrl)
@@ -241,11 +191,9 @@ extension PromoContainerCell: UICollectionViewDelegate {
             }
             
         } else {
-            //let productId = products[indexPath.item].id
             if let product = self.configDetail?.products?[indexPath.item] {
                 
                 let productId = product.productUrlId
-                //let productId = tabProducts[selectedTabIndex].productIds[indexPath.item]
                 
                 let openUrl = "https://www.kkday.com/zh-tw/product/\(productId)"
                 open(urlString: openUrl)

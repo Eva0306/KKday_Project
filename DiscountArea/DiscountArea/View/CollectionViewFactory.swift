@@ -10,13 +10,6 @@ enum PromoLayoutType {
 
 class CollectionViewFactory {
 
-//    func createCollectionView(for dataType: PromoLayoutType) -> UICollectionView {
-//        let layout = createLayout(for: dataType)
-//        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-//        collectionView.backgroundColor = .white
-//        return collectionView
-//    }
-
     func createLayout(for dataType: PromoLayoutType) -> UICollectionViewCompositionalLayout {
         switch dataType {
         case .tabRow:

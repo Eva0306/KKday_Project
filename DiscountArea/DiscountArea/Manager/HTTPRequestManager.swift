@@ -4,8 +4,6 @@ import Foundation
 
 protocol HTTPRequestManagerDelegate: AnyObject  {
     func manager(_ manager: HTTPRequestManager, didGet pageData: ResponsePageData)
-    
-    func manager(_ manager: HTTPRequestManager, didGet productData: ResponseProductData)
 
     func manager(_ manager: HTTPRequestManager, didFailWith error: Error)
 }
