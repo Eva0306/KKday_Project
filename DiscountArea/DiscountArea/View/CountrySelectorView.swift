@@ -6,11 +6,12 @@ protocol CountrySelectorViewDelegate: AnyObject {
     func didSelectCountry(_ country: Category?)
     func hideCountrySelector()
 }
+
 class CountrySelectorView: UIView, UITableViewDelegate, UITableViewDataSource, RadioButtonControllerDelegate {
     
     var countries: [Category] = []
     var selectedCountry: Category?
-    var delegate: CountrySelectorViewDelegate?
+    weak var delegate: CountrySelectorViewDelegate?
     var radioButtonController: RadioButtonController?
     var separatorLine: UIView?
     

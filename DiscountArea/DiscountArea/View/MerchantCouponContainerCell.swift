@@ -10,7 +10,7 @@ class MerchantCouponContainerCell: UITableViewCell {
     
     var merchantCouponTableView = UITableView()
  
-    var delegate: MerchantCouponContainerCellDelegate?
+    weak var delegate: MerchantCouponContainerCellDelegate?
     
     var merchantCouponList: [MerchantCoupon] = [] {
         didSet {

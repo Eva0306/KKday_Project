@@ -106,13 +106,17 @@ class HighlightContainerCell: UITableViewCell, UICollectionViewDataSource, UICol
 
     // MARK: - Configure
 
-    func configure(with products: [Product]){
-        self.products = products
-        if let firstProductUrlId = products.first?.productUrlId, !productIdList.contains(firstProductUrlId) {
-            productIdList = []
-            productIdList.append(firstProductUrlId)
+    func configure(with detail: Detail){
+        //self.products = detail.products
+        
+        if let productDetails = detail.productDetails {
+            productData = productDetails
         }
-        self.httpRequestManager.fetchProductData(productList: productIdList)
+//        if let firstProductUrlId = products.first?.productUrlId, !productIdList.contains(firstProductUrlId) {
+//            productIdList = []
+//            productIdList.append(firstProductUrlId)
+//        }
+        //self.httpRequestManager.fetchProductData(productList: productIdList)
     }
 }
 

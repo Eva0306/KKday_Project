@@ -24,12 +24,7 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
     
     var selectedCountry: Category?
     
-    var configList: [Config] = [] {
-        didSet {
-            updateSectionLabels()
-            tableView.reloadData()
-        }
-    }
+    var configList: [Config] = [] 
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -175,7 +170,7 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
         sectionHeaderView.addSubview(scrollView)
         
         NSLayoutConstraint.activate([
-            scrollView.leadingAnchor.constraint(equalTo: sectionHeaderView.leadingAnchor, constant: 16),
+            scrollView.leadingAnchor.constraint(equalTo: sectionHeaderView.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: sectionHeaderView.trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: sectionHeaderView.topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: sectionHeaderView.bottomAnchor),
@@ -232,9 +227,11 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
         
         if let selectedCountry = country {
             self.configList = selectedCountry.config
+            fetchAllProducts()
             dropdownButton.setTitle(selectedCountry.name, for: .normal)
-            tableView.layoutIfNeeded()
-            tableView.setContentOffset(.zero, animated: true)
+            DispatchQueue.main.async {
+                self.tableView.setContentOffset(.zero, animated: true)
+            }
         }
     }
     
@@ -253,54 +250,50 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
         
         if configList.isEmpty { return }
         
-        sectionLabels.forEach { $0.removeFromSuperview() }
+        if let underlineView = underlineView {
+            
+            underlineView.removeConstraints(underlineView.constraints)
+            
+            underlineView.superview?.constraints.forEach { constraint in
+                if constraint.firstItem as? UIView == underlineView || constraint.secondItem as? UIView == underlineView {
+                    underlineView.superview?.removeConstraint(constraint)
+                }
+            }
+        }
         
+        sectionLabels.forEach { $0.removeFromSuperview() }
         sectionLabels.removeAll()
         
         sectionTitles = configList.compactMap { $0.detail.title }
         
-        var previousLabel: UILabel?
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.alignment = .center
+        stackView.spacing = 16
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(stackView)
+        
+        //var initialLabel: UILabel?
         
         for (index, title) in sectionTitles.enumerated() {
-            let label: UILabel
-            if index < sectionLabels.count {
-                label = sectionLabels[index]
-                label.text = title
-            } else {
-                label = UILabel()
-                label.text = title
-                label.font = UIFont.systemFont(ofSize: 16)
-                label.textColor = index == 0 ? .systemTeal : .black
-                label.isUserInteractionEnabled = true
-                label.tag = index
-                
-                let tapGesture = UITapGestureRecognizer(target: self, action: #selector(sectionLabelTapped(_:)))
-                label.addGestureRecognizer(tapGesture)
-                
-                label.translatesAutoresizingMaskIntoConstraints = false
-                scrollView.addSubview(label)
-                sectionLabels.append(label)
-            }
+            let label = UILabel()
+            label.text = title
+            label.font = UIFont.systemFont(ofSize: 16)
+            label.textColor = index == 0 ? .systemTeal : .black
+            label.isUserInteractionEnabled = true
+            label.tag = index
             
-            NSLayoutConstraint.activate([
-                label.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor),
-                label.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
-            ])
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(sectionLabelTapped(_:)))
+            label.addGestureRecognizer(tapGesture)
             
-            if let previous = previousLabel {
-                NSLayoutConstraint.activate([
-                    label.leadingAnchor.constraint(equalTo: previous.trailingAnchor, constant: 16)
-                ])
-            } else {
-                NSLayoutConstraint.activate([
-                    label.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor)
-                ])
-                
+            stackView.addArrangedSubview(label)
+            sectionLabels.append(label)
+            
+            if index == 0 {
+                //initialLabel = label
                 underlineLeadingConstraint = underlineView?.leadingAnchor.constraint(equalTo: label.leadingAnchor)
                 underlineWidthConstraint = underlineView?.widthAnchor.constraint(equalToConstant: label.intrinsicContentSize.width)
             }
-            
-            previousLabel = label
         }
         
         if let underlineLeadingConstraint = underlineLeadingConstraint,
@@ -313,7 +306,12 @@ class ViewController: UIViewController, CountrySelectorViewDelegate {
             ])
         }
         
-        previousLabel?.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -16).isActive = true
+        NSLayoutConstraint.activate([
+            stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 16),
+            stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -16),
+            stackView.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor),
+            stackView.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
+        ])
         
         view.layoutIfNeeded()
     }
@@ -358,6 +356,8 @@ extension ViewController: HTTPRequestManagerDelegate {
         
         self.tableView.mj_header?.endRefreshing()
         tableView.reloadData()
+        
+        fetchAllProducts()
     }
     
     func manager(_ manager: HTTPRequestManager, didGet productData: ResponseProductData) {
@@ -369,6 +369,64 @@ extension ViewController: HTTPRequestManagerDelegate {
         self.tableView.mj_header?.endRefreshing()
         print(error)
     }
+    
+    func fetchAllProducts() {
+        let dispatchGroup = DispatchGroup()
+        
+        for (index, config) in configList.enumerated() {
+            if config.type == "PRODUCT" {
+                if let tabs = config.detail.tabs {
+                    // 有tabs
+                    for (tabIndex, tab) in tabs.enumerated() {
+                        let productIds = tab.products.map { $0.productUrlId }
+                        
+                        dispatchGroup.enter()
+                        httpRequestManager.fetchProductData(productList: productIds) { result in
+                            switch result {
+                            case .success(let productDetails):
+                                self.configList[index].detail.tabs?[tabIndex].productDetails = productDetails
+                            case .failure(let error):
+                                print("Failed to fetch product data: \(error)")
+                            }
+                            dispatchGroup.leave()
+                        }
+                    }
+                } else {
+                    // 沒有tabs
+                    let productIds = config.detail.products?.map { $0.productUrlId } ?? []
+                    
+                    dispatchGroup.enter()
+                    httpRequestManager.fetchProductData(productList: productIds) { result in
+                        switch result {
+                        case .success(let productDetails):
+                            self.configList[index].detail.productDetails = productDetails
+                        case .failure(let error):
+                            print("Failed to fetch product data: \(error)")
+                        }
+                        dispatchGroup.leave()
+                    }
+                }
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            
+            self.configList.removeAll { config in
+                if config.type == "PRODUCT" {
+                    if let tabs = config.detail.tabs {
+                        return tabs.allSatisfy { $0.productDetails?.isEmpty ?? true }
+                    } else {
+                        return config.detail.productDetails?.isEmpty ?? true
+                    }
+                }
+                return false
+            }
+            
+            self.tableView.reloadData()
+            self.updateSectionLabels()
+        }
+    }
+
 }
 
 extension ViewController: UITableViewDataSource, UITableViewDelegate {
@@ -419,9 +477,8 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
                 
                 let cell = tableView.dequeueReusableCell(withIdentifier: "HighlightContainerCell", for: indexPath) as! HighlightContainerCell
                 
-                if let highlights = config.detail.products {
-                    cell.configure(with: highlights)
-                }
+                cell.configure(with: config.detail)
+                
                 
                 return cell
                 
@@ -547,17 +604,12 @@ extension ViewController: UIScrollViewDelegate {
             self.scrollView.setContentOffset(CGPoint(x: targetOffsetX, y: 0), animated: false)
         }, completion: nil)
         
-        if let existingWidthConstraint = underlineWidthConstraint {
-            underlineView?.removeConstraint(existingWidthConstraint)
-        }
-        
-        underlineWidthConstraint = underlineView?.widthAnchor.constraint(equalToConstant: selectedLabel.intrinsicContentSize.width)
-        underlineWidthConstraint?.isActive = true
-        
         UIView.animate(withDuration: 0.1, delay: 0, options: [.curveEaseInOut], animations: {
             self.underlineLeadingConstraint?.constant = selectedLabel.frame.origin.x
+            self.underlineWidthConstraint?.constant = selectedLabel.frame.width
             self.view.layoutIfNeeded()
         }, completion: nil)
+        
     }
 }
 
@@ -567,9 +619,11 @@ extension ViewController: PromoContainerCellDelegate {
         
         guard let indexPath = tableView.indexPath(for: cell) else { return }
         
-        tableView.reloadSections(IndexSet(integer: indexPath.section), with: .automatic)
-        
-        configList.remove(at: indexPath.section)
+        DispatchQueue.main.asyncAfter(deadline: .now()+0.3){
+            self.configList.remove(at: indexPath.section)
+            
+            self.tableView.reloadSections(IndexSet(integer: indexPath.section), with: .automatic)
+        }
     }
 }
 
@@ -692,10 +746,10 @@ extension ViewController: CouponContainerCellDelegate {
     @objc func closePopupView() {
             UIView.animate(withDuration: 0.3, animations: {
                 self.popupView?.transform = CGAffineTransform(translationX: 0, y: 300)
-            }) { _ in
-                self.popupView?.removeFromSuperview()
-                self.popupView = nil
-                self.removeDarkOverlay()
+            }) { [weak self] _ in
+                self?.popupView?.removeFromSuperview()
+                self?.popupView = nil
+                self?.removeDarkOverlay()
             }
         }
 }

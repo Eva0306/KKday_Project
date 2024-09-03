@@ -18,9 +18,11 @@ class PromoContainerCell: UITableViewCell {
     
     var httpRequestManager = HTTPRequestManager()
     
-    var tabProducts: [(tabName: String, productIds: [String])] = []
+    var tabs: [String] = []
     
-    var productsId: [String] = []
+//    var tabProducts: [(tabName: String, productIds: [String])] = []
+//    
+//    var productsId: [String] = []
     
     var products: [ProductData] = []
     
@@ -91,22 +93,42 @@ class PromoContainerCell: UITableViewCell {
         if let configDetail = configDetail {
             if layout == .tabGrid || layout == .tabRow {
                 
-                tabProducts = []
+                self.tabs = []
+                self.products = []
                 
-                for tab in configDetail.tabs! {
-                    let productIds = tab.products.map { $0.productUrlId }
-                    tabProducts.append((tabName: tab.name, productIds: productIds))
-                }
+                self.tabs = configDetail.tabs!.map{ $0.name }
                 
-                httpRequestManager.fetchProductData(productList: tabProducts[selectedTabIndex].productIds)
+                guard let productDetails = configDetail.tabs?[selectedTabIndex].productDetails else { return }
+                
+                self.products = Array(productDetails.prefix(8))
+                
+                collectionView.reloadData()
+                
+//                tabProducts = []
+//                
+//                for tab in configDetail.tabs! {
+//                    let productIds = tab.products.map { $0.productUrlId }
+//                    tabProducts.append((tabName: tab.name, productIds: productIds))
+//                }
+                
+                //httpRequestManager.fetchProductData(productList: tabProducts[selectedTabIndex].productIds)
                 
                 setupLeftGradientView()
                 setupRightGradientView()
                 
             } else {
-                self.productsId = configDetail.products?.map{ $0.productUrlId } ?? []
                 
-                httpRequestManager.fetchProductData(productList: productsId)
+                self.products = []
+                
+                guard let productDetails = configDetail.productDetails else { return }
+                
+                self.products = Array(productDetails.prefix(8))
+                
+                collectionView.reloadData()
+                
+//                self.productsId = configDetail.products?.map{ $0.productUrlId } ?? []
+                
+                //httpRequestManager.fetchProductData(productList: productsId)
 
             }
         }
@@ -157,7 +179,8 @@ extension PromoContainerCell: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         if layout == .tabGrid || layout == .tabRow {
-            return section == 0 ? tabProducts.count : min(products.count, 8)
+            //return section == 0 ? tabProducts.count : min(products.count, 8)
+            return section == 0 ? tabs.count : products.count
         } else {
             return min(products.count, 8)
         }
@@ -168,7 +191,8 @@ extension PromoContainerCell: UICollectionViewDataSource {
         if layout == .tabGrid || layout == .tabRow {
             if indexPath.section == 0 {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TabCell", for: indexPath) as! PromoTabCell
-                cell.configure(with: tabProducts[indexPath.item].tabName, isSelected: indexPath.item == selectedTabIndex)
+                //cell.configure(with: tabProducts[indexPath.item].tabName, isSelected: indexPath.item == selectedTabIndex)
+                cell.configure(with: tabs[indexPath.item], isSelected: indexPath.item == selectedTabIndex)
                 return cell
                 
             } else {
@@ -190,38 +214,42 @@ extension PromoContainerCell: UICollectionViewDataSource {
 
 // MARK: - UICollectionViewDelegate
 extension PromoContainerCell: UICollectionViewDelegate {
-//    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-//        if layout == .tabGrid || layout == .tabRow {
-//            if indexPath.section == 0 {
-//                cell.alpha = 0
-//                
-//                UIView.animate(withDuration: 0.5, delay: 0.05, options: .curveEaseInOut, animations: {
-//                    cell.alpha = 1
-//                })
-//            }
-//        }
-//    }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if layout == .tabGrid || layout == .tabRow {
             if indexPath.section == 0 {
                 selectedTabIndex = indexPath.item
                 
-                httpRequestManager.fetchProductData(productList: tabProducts[indexPath.item].productIds)
+                self.products = []
+                
+                guard let productDetails = configDetail?.tabs?[selectedTabIndex].productDetails else { return }
+                
+                self.products = Array(productDetails.prefix(8))
+                
+                collectionView.reloadData()
                 
             } else {
                 
-                let productId = tabProducts[selectedTabIndex].productIds[indexPath.item]
+                if let product = self.configDetail?.tabs?[selectedTabIndex].products[indexPath.item] {
+                    
+                    let productId = product.productUrlId
+                    //let productId = tabProducts[selectedTabIndex].productIds[indexPath.item]
+                    
+                    let openUrl = "https://www.kkday.com/zh-tw/product/\(productId)"
+                    open(urlString: openUrl)
+                }
+            }
+            
+        } else {
+            //let productId = products[indexPath.item].id
+            if let product = self.configDetail?.products?[indexPath.item] {
+                
+                let productId = product.productUrlId
+                //let productId = tabProducts[selectedTabIndex].productIds[indexPath.item]
                 
                 let openUrl = "https://www.kkday.com/zh-tw/product/\(productId)"
                 open(urlString: openUrl)
             }
-            
-        } else {
-            
-            let productId = products[indexPath.item].id
-            let openUrl = "https://www.kkday.com/zh-tw/product/\(productId)"
-            open(urlString: openUrl)
         }
     }
 }

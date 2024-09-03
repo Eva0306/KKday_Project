@@ -34,17 +34,17 @@ struct Category: Codable {
     let dealPageCategoryOid: Int
     let name: String
     let sort: Int
-    let config: [Config]
+    var config: [Config]
 }
 
 struct Config: Codable {
     let sort: Int
     let type: String
-    let detail: Detail
+    var detail: Detail
 }
 
 struct Detail: Codable {
-    let tabs: [Tab]?
+    var tabs: [Tab]?
     let title: String?
     let ctaUrl: String?
     let layout: String?
@@ -57,11 +57,15 @@ struct Detail: Codable {
     let coupons: [Coupon]?
     let guides: [Guide]?
     let contents: [String]?
+    
+    var productDetails: [ProductData]?
 }
 
 struct Tab: Codable {
     let name: String
     let products: [Product]
+    
+    var productDetails: [ProductData]?
 }
 
 struct Product: Codable {

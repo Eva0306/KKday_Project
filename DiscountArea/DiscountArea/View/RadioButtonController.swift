@@ -2,7 +2,7 @@
 
 import UIKit
 
-protocol RadioButtonControllerDelegate {
+protocol RadioButtonControllerDelegate: AnyObject  {
     func didSelectedButton(_ radioButtonController:RadioButtonController, _ currentSelectedButton:RadioButton?)
 }
 
@@ -10,7 +10,7 @@ class RadioButtonController: NSObject {
     var buttonArray = [RadioButton]()
     var canDeSelect:Bool = false
     var name:String = ""
-    var delegate:RadioButtonControllerDelegate?
+    weak var delegate: RadioButtonControllerDelegate?
         
     init(buttons:[RadioButton]){
         super.init()

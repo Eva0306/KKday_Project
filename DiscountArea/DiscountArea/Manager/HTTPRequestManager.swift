@@ -2,7 +2,7 @@
 
 import Foundation
 
-protocol HTTPRequestManagerDelegate {
+protocol HTTPRequestManagerDelegate: AnyObject  {
     func manager(_ manager: HTTPRequestManager, didGet pageData: ResponsePageData)
     
     func manager(_ manager: HTTPRequestManager, didGet productData: ResponseProductData)
@@ -12,7 +12,7 @@ protocol HTTPRequestManagerDelegate {
 
 class HTTPRequestManager {
     
-    var delegate: HTTPRequestManagerDelegate?
+    weak var delegate: HTTPRequestManagerDelegate?
     
     func fetchPageData() {
         guard let url = URL(string: "https://aw-api.creziv.com/pages") else { return }
@@ -51,7 +51,7 @@ class HTTPRequestManager {
         task.resume()
     }
     
-    func fetchProductData(productList: [String]) {
+    func fetchProductData(productList: [String], completion: @escaping (Result<[ProductData], Error>) -> Void) {
         guard let url = URL(string: "https://aw-api.creziv.com/search") else { return }
         
         var request = URLRequest(url: url)
@@ -73,29 +73,33 @@ class HTTPRequestManager {
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
-                print("Error: \(error)")
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
                 return
             }
             
             guard let httpResponse = response as? HTTPURLResponse,
                   (200...299).contains(httpResponse.statusCode) else {
-                print("Error: server error")
+                DispatchQueue.main.async {
+                    let serverError = NSError(domain: "ServerError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Server error"])
+                    completion(.failure(serverError))
+                }
                 return
             }
             
             if let data = data {
-                
                 let decoder = JSONDecoder()
                 decoder.keyDecodingStrategy = .convertFromSnakeCase
                 
                 do {
                     let productData = try decoder.decode(ResponseProductData.self, from: data)
                     DispatchQueue.main.async {
-                        self.delegate?.manager(self, didGet: productData)
+                        completion(.success(productData.data))
                     }
                 } catch {
                     DispatchQueue.main.async {
-                        self.delegate?.manager(self, didFailWith: error)
+                        completion(.failure(error))
                         print("Decoding error: \(error)")
                     }
                 }
@@ -104,4 +108,5 @@ class HTTPRequestManager {
         
         task.resume()
     }
+
 }
