@@ -34,6 +34,10 @@ class PromoContainerCell: UITableViewCell {
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         
         contentView.addSubview(collectionView)
+        
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -42,9 +46,6 @@ class PromoContainerCell: UITableViewCell {
             collectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
-        
-        collectionView.dataSource = self
-        collectionView.delegate = self
         
         collectionView.register(PromoTabCell.self, forCellWithReuseIdentifier: "TabCell")
         collectionView.register(PromoProductCell.self, forCellWithReuseIdentifier: "ProductCell")
@@ -95,6 +96,17 @@ class PromoContainerCell: UITableViewCell {
                 setupLeftGradientView()
                 setupRightGradientView()
                 
+                factory.scrollCallback = { [weak self] visibleItems, point in
+                    guard let self = self else { return }
+                    
+                    if point.x <= 0 {
+                        self.leftGradientView.isHidden = true
+                    } else {
+                        self.leftGradientView.isHidden = false
+                        self.rightGradientView.isHidden = false
+                    }
+                }
+                
             } else {
                 
                 self.products = []
@@ -106,10 +118,9 @@ class PromoContainerCell: UITableViewCell {
                 collectionView.reloadData()
 
             }
+        } else {
+            collectionView.reloadData()
         }
-        
-        collectionView.reloadData()
-        
     }
 }
 
@@ -178,7 +189,7 @@ extension PromoContainerCell: UICollectionViewDelegate {
                 self.products = Array(productDetails.prefix(8))
                 
                 collectionView.reloadData()
-                
+            
             } else {
                 
                 if let product = self.configDetail?.tabs?[selectedTabIndex].products[indexPath.item] {

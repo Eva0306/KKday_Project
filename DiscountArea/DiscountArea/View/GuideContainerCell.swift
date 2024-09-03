@@ -65,7 +65,7 @@ class GuideContainerCell: UITableViewCell, UICollectionViewDataSource, UICollect
         guideCollectionView.dataSource = self
         guideCollectionView.showsHorizontalScrollIndicator = false
 
-        guideCollectionView.register(guideCell.self, forCellWithReuseIdentifier: cellIdentifier)
+        guideCollectionView.register(GuideCell.self, forCellWithReuseIdentifier: cellIdentifier)
         contentView.addSubview(guideCollectionView)
 
         guideCollectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -107,7 +107,7 @@ class GuideContainerCell: UITableViewCell, UICollectionViewDataSource, UICollect
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = guideCollectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! guideCell
+        let cell = guideCollectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! GuideCell
         let guide = guideList[indexPath.item]
         cell.imageView.loadImage(from: guide.imageUrl)
 

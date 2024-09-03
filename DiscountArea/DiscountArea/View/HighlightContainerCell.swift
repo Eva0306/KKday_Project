@@ -29,7 +29,7 @@ class HighlightContainerCell: UITableViewCell, UICollectionViewDataSource, UICol
         collectionView.isPagingEnabled = true
         collectionView.showsHorizontalScrollIndicator = false
 
-        collectionView.register(highlightCell.self, forCellWithReuseIdentifier: "highlightCell")
+        collectionView.register(HighlightCell.self, forCellWithReuseIdentifier: "highlightCell")
 
         contentView.addSubview(collectionView)
 
@@ -51,7 +51,7 @@ class HighlightContainerCell: UITableViewCell, UICollectionViewDataSource, UICol
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "highlightCell", for: indexPath) as! highlightCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "highlightCell", for: indexPath) as! HighlightCell
 
         if productData.isEmpty {
             cell.imageView.image = UIImage(named: "placeHolder")

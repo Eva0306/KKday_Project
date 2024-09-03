@@ -3,7 +3,7 @@
 import UIKit
 import MJRefresh
 
-class ViewController: UIViewController, CountrySelectorViewDelegate {
+class ViewController: UIViewController, CountrySelectorViewDelegate, UICollectionViewDelegate {
     
     var httpRequestManager = HTTPRequestManager()
     var tableView = UITableView()
@@ -355,7 +355,6 @@ extension ViewController: HTTPRequestManagerDelegate {
         }
         
         self.tableView.mj_header?.endRefreshing()
-        tableView.reloadData()
         
         fetchAllProducts()
     }
@@ -459,8 +458,6 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
                 
                 if let merchantCoupons = config.detail.merchantCoupons {
                     cell.configure(with: merchantCoupons)
-
-
                 }
                 
                 cell.delegate = self
@@ -495,7 +492,7 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
                 if let guides = config.detail.guides {
                     cell.configure(with: guides)
                 }
-
+                
                 cell.selectionStyle = .none
                 
                 return cell
@@ -511,19 +508,19 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
                 cell.selectionStyle = .none
                 
                 cell.delegate = self
+                
+                return cell
+                
+            } else if config.type == "DESCRIPTION" {
+                let cell = tableView.dequeueReusableCell(withIdentifier: "NoticeTableViewCell", for: indexPath) as! NoticeTableViewCell
+                
+                cell.configure(with: config.detail)
+                
+                cell.selectionStyle = .none
+                
+                return cell
+            }
             
-            return cell
-            
-        } else if config.type == "DESCRIPTION" {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "NoticeTableViewCell", for: indexPath) as! NoticeTableViewCell
-            
-            cell.configure(with: config.detail)
-            
-            cell.selectionStyle = .none
-            
-            return cell
-        }
-        
             return UITableViewCell()
         }
     }
@@ -557,10 +554,10 @@ extension ViewController: MerchantCouponContainerCellDelegate {
 }
 
 // MARK: - ScrollViewDelegate
-extension ViewController: UIScrollViewDelegate {
+extension ViewController {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-
+        
         guard let visibleIndexPaths = tableView.indexPathsForVisibleRows else { return }
         
         var firstFullyVisibleSection = visibleIndexPaths.first?.section ?? 0

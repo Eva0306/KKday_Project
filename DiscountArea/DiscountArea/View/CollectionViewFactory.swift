@@ -9,6 +9,8 @@ enum PromoLayoutType {
 }
 
 class CollectionViewFactory {
+    
+    var scrollCallback: (([NSCollectionLayoutVisibleItem],CGPoint) -> Void)?
 
     func createLayout(for dataType: PromoLayoutType) -> UICollectionViewCompositionalLayout {
         switch dataType {
@@ -55,9 +57,11 @@ class CollectionViewFactory {
         section.orthogonalScrollingBehavior = .continuous
         section.interGroupSpacing = 8
         section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 24, bottom: 0, trailing: 24)
+        
+        section.visibleItemsInvalidationHandler = { [weak self] visibleItems, point, environment in
+            self?.scrollCallback?(visibleItems, point)
+        }
 
-        
-        
         return section
     }
     

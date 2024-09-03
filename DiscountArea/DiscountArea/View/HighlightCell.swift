@@ -1,7 +1,7 @@
 
 import UIKit
 
-class highlightCell: UICollectionViewCell {
+class HighlightCell: UICollectionViewCell {
 
     let imageView = UIImageView()
     let heartButton = UIButton()

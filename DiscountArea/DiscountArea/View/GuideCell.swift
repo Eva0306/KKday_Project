@@ -2,7 +2,7 @@
 
 import UIKit
 
-class guideCell: UICollectionViewCell {
+class GuideCell: UICollectionViewCell {
 
     let imageView = UIImageView()
     let videoPlayIcon = UIButton()
