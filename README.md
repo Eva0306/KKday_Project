@@ -10,13 +10,16 @@ The interface supports various display formats using both TableView and Collecti
 
 Additionally, users can save and share discount coupons directly from the app.
 
+> The data presented in this project is sourced from **KKday**, ensuring accurate and up-to-date information on available discounts and offers.
+
 ## Features
 
 - **Special Offers Display**: A dedicated page showcasing various discount items and special offers.
 - **Localized Content**: Users can switch between different countries and regions to view localized discount information.
 - **Dynamic Product Cards**: Utilizes both TableView and CollectionView to present products in different formats, providing a versatile user experience.
 - **Coupon Management**: Users can save discount coupons for future use and share them with others.
-- **RESTful API Integration**: Data is retrieved in real-time from the backend using RESTful APIs, ensuring the latest offers are always displayed.
+- **Favorites Management**: Users can save their favorite products for later review. This data is stored locally using Core Data, allowing users to access their saved items.
+- **RESTful API Integration**: Data is retrieved in real-time from the backend using RESTful APIs. Users can pull to refresh the content and retrieve the latest offers.
 
 ## Installation
 
@@ -30,10 +33,13 @@ Additionally, users can save and share discount coupons directly from the app.
 4. Build and run the app on a simulator or connected device.
 
 ## Usage
-Open the app to view the latest discounts and special offers.
-Switch between different countries or regions to explore localized deals.
-Browse products displayed in different formats using TableView and CollectionView.
-Save your favorite discount coupons or share them with friends.
+- Open the app to view the latest discounts and special offers.
+
+- Switch between different countries or regions to explore localized deals.
+
+- Browse products displayed in different formats using TableView and CollectionView.
+
+- Save your favorite discount coupons or share them with friends.
 
 ## License
 This project is licensed under the [MIT License](https://raw.githubusercontent.com/Eva0306/KKday_Project/refs/heads/master/LICENSE).
